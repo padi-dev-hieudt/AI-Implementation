@@ -1,0 +1,110 @@
+﻿<Window x:Class="RBAC_WPF_2026.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RBAC_WPF_2026"
+        xmlns:views="clr-namespace:RBAC_WPF_2026.Views"
+        mc:Ignorable="d"
+        Title="RBAC Management System" Height="900" Width="1400" MinHeight="700" MinWidth="1000"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Window.Resources>
+        <DataTemplate x:Key="UserManagementTemplate">
+            <views:UserManagementView />
+        </DataTemplate>
+        <DataTemplate x:Key="RoleManagementTemplate">
+            <views:RoleManagementView />
+        </DataTemplate>
+        <DataTemplate x:Key="PermissionManagementTemplate">
+            <views:PermissionManagementView />
+        </DataTemplate>
+        <DataTemplate x:Key="PositionManagementTemplate">
+            <views:PositionManagementView />
+        </DataTemplate>
+        
+        <Style x:Key="NavigationButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF52C3F7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF52C3F7"/>
+                                <Setter Property="BorderBrush" Value="#FF52C3F7"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FF3498DB"/>
+                                <Setter Property="BorderBrush" Value="#FF3498DB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <DockPanel>
+        <!-- Navigation Bar -->
+        <Border DockPanel.Dock="Top" BorderBrush="#FF1A252F" BorderThickness="0,0,0,2">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FF2C3E50" Offset="0"/>
+                    <GradientStop Color="#FF34495E" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,15">
+                    <TextBlock Text="🛡️" FontSize="24" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="RBAC Management System" FontSize="20" FontWeight="Bold" 
+                               Foreground="White" VerticalAlignment="Center" Margin="0,0,30,0"/>
+                    <Button Content="👥 Users" 
+                            Command="{Binding ShowUsersCommand}"
+                            Style="{StaticResource NavigationButtonStyle}"/>
+                    <Button Content="🎭 Roles" 
+                            Command="{Binding ShowRolesCommand}"
+                            Style="{StaticResource NavigationButtonStyle}"/>
+                    <Button Content="🔐 Permissions" 
+                            Command="{Binding ShowPermissionsCommand}"
+                            Style="{StaticResource NavigationButtonStyle}"/>
+                    <Button Content="📍 Positions" 
+                            Command="{Binding ShowPositionsCommand}"
+                            Style="{StaticResource NavigationButtonStyle}"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="1" Text="Administrator Panel" FontSize="12" 
+                           Foreground="#FFBDC3C7" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            </Grid>
+        </Border>
+        
+        <!-- Content Area -->
+        <ContentPresenter Content="{Binding CurrentViewModel}">
+            <ContentPresenter.ContentTemplateSelector>
+                <local:ViewModelTemplateSelector 
+                    UserManagementTemplate="{StaticResource UserManagementTemplate}"
+                    RoleManagementTemplate="{StaticResource RoleManagementTemplate}"
+                    PermissionManagementTemplate="{StaticResource PermissionManagementTemplate}"
+                    PositionManagementTemplate="{StaticResource PositionManagementTemplate}"/>
+            </ContentPresenter.ContentTemplateSelector>
+        </ContentPresenter>
+    </DockPanel>
+</Window>

@@ -1,0 +1,120 @@
+﻿You are a senior ASP.NET Core architect.
+
+Help me build Phase 1 (MVP) of a community discussion forum web application similar to daynhauhoc.com.
+
+Tech Stack:
+- ASP.NET Core MVC (.NET 6)
+- Entity Framework Core
+- SQL Server
+- JWT Authentication
+- 3-layer architecture: Controller → Service → Data (Repository)
+- Use best practices
+- Production-quality code
+
+Architecture Rules:
+- Use MVC (NOT Web API)
+- Use 3-layer structure:
+    - Controllers (handle HTTP + validation)
+    - Services (contain ALL business logic)
+    - Repositories (data access only)
+- Do NOT put business logic in Controllers
+- Use DTOs between layers
+- Use AutoMapper
+- Use Dependency Injection properly
+
+=====================================
+PHASE 1 FEATURES (MVP)
+=====================================
+
+1) User System
+- Register (username, email, password)
+- Login (generate JWT token)
+- Secure password hashing
+- Role system (User, Admin)
+- Get user profile page
+
+2) Post System
+- Create post (title, content)
+- Edit post (only owner)
+- Delete post (owner or admin)
+- Get post list (with pagination)
+- Get post detail by id
+
+3) Comment System
+- Add comment to post
+- Edit comment (only owner)
+- Delete comment (owner or admin)
+- Get comments by post
+
+=====================================
+DATABASE DESIGN
+=====================================
+
+Generate:
+- Entity models
+- Relationships
+- DbContext
+- Fluent API configuration
+- Migration-ready structure
+- Proper indexes and constraints
+
+=====================================
+SECURITY
+=====================================
+
+- JWT Authentication
+- Authorization attributes
+- Role-based access control
+- Protect create/edit/delete endpoints
+- Secure password hashing using ASP.NET Identity or BCrypt
+
+=====================================
+VALIDATION
+=====================================
+
+- Use FluentValidation
+- Model validation in MVC
+- Global exception handling middleware
+- Return proper HTTP status codes
+
+=====================================
+DELIVERABLES
+=====================================
+
+Provide:
+
+1) Complete project folder structure
+2) All Entity Models
+3) DbContext implementation
+4) Repository interfaces and implementations
+5) Service interfaces and implementations
+6) Example Controllers (UserController, PostController, CommentController)
+7) DTO classes
+8) AutoMapper profiles
+9) Program.cs configuration
+10) appsettings.json example (JWT + SQL Server)
+11) Example EF Core migration script
+12) Example SQL generated schema
+13) Example Postman test cases
+
+=====================================
+CODE QUALITY
+=====================================
+
+- Clean code
+- Proper async/await usage
+- Use IActionResult correctly
+- Use pagination best practices
+- Add comments explaining important parts
+- Follow SOLID principles
+
+Generate the solution step-by-step in logical order:
+1. Database
+2. Entities
+3. Repositories
+4. Services
+5. Controllers
+6. Configuration
+
+Do NOT skip explanations.
+Keep code structured and production-ready.

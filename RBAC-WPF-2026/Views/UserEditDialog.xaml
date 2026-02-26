@@ -1,0 +1,160 @@
+<Window x:Class="RBAC_WPF_2026.Views.UserEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:RBAC_WPF_2026.Views"
+        Title="{Binding Title}" Height="700" Width="600" MinHeight="600" MinWidth="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" Background="#FFF8F9FA">
+    <Window.Resources>
+        <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#FFDDD"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#FF3498DB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="25,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="2"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*" MinHeight="100"/>
+            <RowDefinition Height="Auto" MaxHeight="60"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- User Details Form -->
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Username:" Margin="0,0,10,5"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,5" Padding="5"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Email:" Margin="0,0,10,5"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,5" Padding="5"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Password:" Margin="0,0,10,5"/>
+            <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,5" 
+                         Padding="5" PasswordChanged="PasswordBox_PasswordChanged"/>
+
+            <Label Grid.Row="3" Grid.Column="1" Content="Leave blank to keep current password (edit mode)" 
+                   FontSize="10" Foreground="Gray" Margin="0,0,0,10"
+                   Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <CheckBox Grid.Row="4" Grid.Column="1" Content="Is Active" IsChecked="{Binding IsActive}" 
+                      Margin="0,0,0,15"/>
+
+            <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Roles:" FontWeight="Bold" Margin="0,0,0,5"/>
+        </Grid>
+
+        <!-- Roles Selection -->
+        <GroupBox Grid.Row="1" Header="Assign Roles" FontWeight="Bold" Margin="0,0,0,5" Padding="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="180" Padding="0">
+                <ItemsControl ItemsSource="{Binding AvailableRoles}" Margin="0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" BorderBrush="#DDDDDD" BorderThickness="1" 
+                                    CornerRadius="4" Margin="2" Padding="5,3">
+                                <CheckBox Content="{Binding Role.Name}" IsChecked="{Binding IsSelected}" 
+                                          FontSize="12" ToolTip="{Binding Role.Description}">
+                                    <CheckBox.Style>
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="Foreground" Value="#2C3E50"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Foreground" Value="#27AE60"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Error Message -->
+        <Border Grid.Row="2" Background="#FFFFE0E0" BorderBrush="#FFFF8080" BorderThickness="1" 
+                Padding="10" Margin="0,5,0,5" CornerRadius="3" MaxHeight="50"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFD00000" FontWeight="Medium" TextWrapping="Wrap"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Save" Command="{Binding SaveCommand}" 
+                    Padding="20,8" Margin="0,0,10,0" Background="#FF4CAF50" Foreground="White" BorderBrush="#FF4CAF50"
+                    IsDefault="True"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" 
+                    Padding="20,8" Background="#FFF44336" Foreground="White" BorderBrush="#FFF44336"
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

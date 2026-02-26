@@ -1,0 +1,298 @@
+{
+  "info": {
+    "name": "ForumWebsite API – Phase 1",
+    "description": "Complete test suite for User, Post, and Comment endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:7000" },
+    { "key": "token",   "value": "" }
+  ],
+  "item": [
+
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/user/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test1234\",\n  \"confirmPassword\": \"Test1234\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                "const json = pm.response.json();",
+                "pm.test('Success flag', () => pm.expect(json.success).to.be.true);",
+                "pm.collectionVariables.set('token', json.data.token);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/user/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test1234\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "const json = pm.response.json();",
+                "pm.test('Token present', () => pm.expect(json.data.token).to.be.a('string'));",
+                "pm.collectionVariables.set('token', json.data.token);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "url":    "{{baseUrl}}/api/user/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "pm.test('Has username', () => pm.expect(pm.response.json().data.username).to.be.a('string'));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login – wrong password (expect 403)",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/user/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"WrongPassword\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 403', () => pm.response.to.have.status(403));"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "Post",
+      "item": [
+        {
+          "name": "Get Posts (paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw":   "{{baseUrl}}/api/post?page=1&pageSize=10",
+              "query": [
+                { "key": "page",     "value": "1"  },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "const data = pm.response.json().data;",
+                "pm.test('Has items array', () => pm.expect(data.items).to.be.an('array'));",
+                "pm.test('Has pagination meta', () => pm.expect(data.totalCount).to.be.a('number'));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/post",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My first forum post\",\n  \"content\": \"This is the body of my first post. It has enough content.\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                "const json = pm.response.json();",
+                "pm.collectionVariables.set('postId', json.data.id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Get Post Detail",
+          "request": {
+            "method": "GET",
+            "url":    "{{baseUrl}}/api/post/{{postId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "pm.test('Has comments array', () => pm.expect(pm.response.json().data.comments).to.be.an('array'));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "url":    "{{baseUrl}}/api/post/{{postId}}",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated post title here\",\n  \"content\": \"Updated content — still has enough characters.\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        },
+        {
+          "name": "Delete Post",
+          "request": {
+            "method": "DELETE",
+            "url":    "{{baseUrl}}/api/post/{{postId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        },
+        {
+          "name": "Create Post – unauthenticated (expect 401)",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/post",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Should fail\",\n  \"content\": \"No auth header provided.\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"] }
+          }]
+        }
+      ]
+    },
+
+    {
+      "name": "Comment",
+      "item": [
+        {
+          "name": "Add Comment",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/comment",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"postId\": {{postId}},\n  \"content\": \"This is a test comment on the post.\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                "pm.collectionVariables.set('commentId', pm.response.json().data.id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Get Comments by Post",
+          "request": {
+            "method": "GET",
+            "url":    "{{baseUrl}}/api/comment/post/{{postId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "pm.test('Array response', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PUT",
+            "url":    "{{baseUrl}}/api/comment/{{commentId}}",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment text here.\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "url":    "{{baseUrl}}/api/comment/{{commentId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        }
+      ]
+    }
+
+  ]
+}

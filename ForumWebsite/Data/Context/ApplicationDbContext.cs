@@ -1,0 +1,120 @@
+using ForumWebsite.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace ForumWebsite.Data.Context
+{
+    /// <summary>
+    /// EF Core DbContext.  All table configuration is done here via Fluent API
+    /// (preferred over data annotations for a cleaner domain model).
+    /// </summary>
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+
+        public DbSet<User>    Users    { get; set; } = null!;
+        public DbSet<Post>    Posts    { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // ─── User ────────────────────────────────────────────────────────────
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Username)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.Email)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.PasswordHash)
+                      .IsRequired();
+
+                entity.Property(e => e.Role)
+                      .IsRequired()
+                      .HasMaxLength(20)
+                      .HasDefaultValue(UserRoles.User);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(e => e.IsActive)
+                      .HasDefaultValue(true);
+
+                // Unique constraints — enforced at DB level as well as application level
+                entity.HasIndex(e => e.Username).IsUnique().HasDatabaseName("UX_Users_Username");
+                entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("UX_Users_Email");
+            });
+
+            // ─── Post ─────────────────────────────────────────────────────────────
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Title)
+                      .IsRequired()
+                      .HasMaxLength(300);
+
+                entity.Property(e => e.Content)
+                      .IsRequired();           // nvarchar(max)
+
+                entity.Property(e => e.ViewCount)
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                // Restrict: deleting a user does NOT cascade-delete their posts
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.Posts)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes to speed up common list/filter queries
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_Posts_UserId");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_Posts_CreatedAt");
+                entity.HasIndex(e => e.IsDeleted).HasDatabaseName("IX_Posts_IsDeleted");
+            });
+
+            // ─── Comment ──────────────────────────────────────────────────────────
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Content)
+                      .IsRequired()
+                      .HasMaxLength(5000);
+
+                entity.Property(e => e.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                // Cascade: if a post is hard-deleted, its comments are removed too
+                entity.HasOne(e => e.Post)
+                      .WithMany(p => p.Comments)
+                      .HasForeignKey(e => e.PostId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Restrict: deleting a user does NOT cascade-delete their comments
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.Comments)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => e.PostId).HasDatabaseName("IX_Comments_PostId");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_Comments_UserId");
+            });
+        }
+    }
+}
