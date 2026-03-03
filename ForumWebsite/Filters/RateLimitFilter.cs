@@ -48,7 +48,14 @@ namespace ForumWebsite.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            var ip  = context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            // Prefer X-Forwarded-For so the limit applies per client IP behind a reverse proxy.
+            // Take only the first address (client) — subsequent entries are proxy hops.
+            // Fall back to the TCP connection address when no proxy header is present.
+            var forwarded = context.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            var ip        = forwarded?.Split(',')[0].Trim()
+                            ?? context.HttpContext.Connection.RemoteIpAddress?.ToString()
+                            ?? "unknown";
+
             var key = $"rl:{context.ActionDescriptor.DisplayName}:{ip}";
 
             // GetOrCreate returns the SAME reference object on subsequent calls.

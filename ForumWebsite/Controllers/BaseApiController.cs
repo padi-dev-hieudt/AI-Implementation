@@ -17,7 +17,7 @@ namespace ForumWebsite.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public abstract class BaseApiController : Controller
+    public abstract class BaseApiController : ControllerBase
     {
         // ── Claim extraction (safe) ────────────────────────────────────────────
 

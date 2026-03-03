@@ -49,7 +49,7 @@ namespace ForumWebsite.Services.Implementations
             return _mapper.Map<PostDetailDto>(post);
         }
 
-        public async Task<PostDto> CreatePostAsync(int userId, CreatePostDto dto)
+        public async Task<PostDetailDto> CreatePostAsync(int userId, CreatePostDto dto)
         {
             var post = new Post
             {
@@ -63,8 +63,9 @@ namespace ForumWebsite.Services.Implementations
 
             // Reload to pick up the User navigation property needed for mapping.
             // One extra query is acceptable on write paths; avoids a null-ref in AutoMapper.
+            // Return PostDetailDto (includes empty Comments list) — richer response for the creator.
             var created = await _postRepository.GetByIdWithDetailsAsync(post.Id);
-            return _mapper.Map<PostDto>(created!);
+            return _mapper.Map<PostDetailDto>(created!);
         }
 
         public async Task<PostDto> UpdatePostAsync(

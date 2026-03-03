@@ -21,7 +21,7 @@ namespace ForumWebsite.Data.Repositories.Implementations
             => await _dbSet.AnyAsync(u => u.Email == email.ToLower());
 
         public async Task<bool> UsernameExistsAsync(string username)
-            => await _dbSet.AnyAsync(u => u.Username == username);
+            => await _dbSet.AnyAsync(u => u.Username.ToLower() == username.ToLower());
 
         /// <summary>
         /// Two lightweight COUNT queries — no navigation properties loaded.

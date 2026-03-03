@@ -75,8 +75,11 @@ namespace ForumWebsite.Extensions
 
             san.AllowedAttributes.UnionWith(new[] { "href", "src", "alt", "class", "target", "rel" });
 
-            // data: URIs for clipboard-pasted images; http/https for remote images
-            san.AllowedSchemes.UnionWith(new[] { "http", "https", "data" });
+            // http/https only — data: is intentionally excluded.
+            // Allowing data: globally would permit <a href="data:text/html,<script>..."> XSS via
+            // data-URI links that execute outside this page's CSP. Clipboard-pasted images from
+            // Quill should be handled via a dedicated /api/upload endpoint in production.
+            san.AllowedSchemes.UnionWith(new[] { "http", "https" });
 
             return san;
         }

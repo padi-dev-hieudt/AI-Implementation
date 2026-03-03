@@ -19,7 +19,10 @@
       "Bash(dotnet restore)",
       "Bash(dotnet package search HtmlSanitizer --source https://api.nuget.org/v3/index.json)",
       "Bash(dotnet test ForumWebsite.Tests/ --no-build)",
-      "Bash(dotnet test ForumWebsite.Tests/ --filter \"Validator\" --no-build)"
+      "Bash(dotnet test ForumWebsite.Tests/ --filter \"Validator\" --no-build)",
+      "Bash(taskkill /F /PID 19820)",
+      "Bash(taskkill //F //PID 19820)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

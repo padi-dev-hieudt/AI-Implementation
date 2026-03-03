@@ -113,14 +113,13 @@ public class JwtServiceTests
     }
 
     [Fact]
-    public void GenerateToken_MissingSecretKey_ThrowsInvalidOperationException()
+    public void Constructor_MissingSecretKey_ThrowsInvalidOperationException()
     {
-        var cfg  = BuildConfig(secret: null);   // SecretKey not present
-        var user = TestDataFactory.CreateUser();
+        // Config is validated at construction so misconfiguration fails fast at startup.
+        var cfg = BuildConfig(secret: null);   // SecretKey not present
 
-        var sut = new JwtService(cfg);
-        sut.Invoking(s => s.GenerateToken(user))
-           .Should().Throw<InvalidOperationException>()
+        var act = () => new JwtService(cfg);
+        act.Should().Throw<InvalidOperationException>()
            .WithMessage("*SecretKey*");
     }
 

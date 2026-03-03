@@ -81,18 +81,24 @@ namespace ForumWebsite.Controllers
         }
 
         // GET api/user/profile/{id}
+        // Publicly accessible — forum profiles are visible to everyone.
+        // Email is omitted from the public profile (use GET /me for your own full profile).
         [HttpGet("profile/{id:int}")]
-        [Authorize]
         public async Task<IActionResult> GetProfile(int id)
         {
-            var currentUserId   = GetCurrentUserId();
-            var currentUserRole = GetCurrentUserRole();
-
-            if (id != currentUserId && currentUserRole != UserRoles.Admin)
-                return Forbid();
-
             var profile = await _userService.GetProfileAsync(id);
-            return OkResponse(profile);
+
+            var publicProfile = new PublicUserProfileDto
+            {
+                Id           = profile.Id,
+                Username     = profile.Username,
+                Role         = profile.Role,
+                CreatedAt    = profile.CreatedAt,
+                PostCount    = profile.PostCount,
+                CommentCount = profile.CommentCount
+            };
+
+            return OkResponse(publicProfile);
         }
 
         // ── Private helpers ────────────────────────────────────────────────────

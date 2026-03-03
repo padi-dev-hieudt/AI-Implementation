@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RBAC-WPF-2026")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc5949e1968c9e98b93ceef1d2e8edd5c4d6e8b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c2bd818969c673ab5167cf24e9f9bcaf7f7d114a")]
 [assembly: System.Reflection.AssemblyProductAttribute("RBAC-WPF-2026")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RBAC-WPF-2026")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -106,11 +106,11 @@ public class RegisterDtoValidatorTests
     }
 
     [Fact]
-    public void Password_FiveChars_FailsMinLength()
+    public void Password_SevenChars_FailsMinLength()
     {
-        var dto = Valid(); dto.Password = "Abc1!"; dto.ConfirmPassword = "Abc1!";
+        var dto = Valid(); dto.Password = "Abcd1!X"; dto.ConfirmPassword = "Abcd1!X";   // 7 chars
         _sut.TestValidate(dto).ShouldHaveValidationErrorFor(x => x.Password)
-            .WithErrorMessage("Password must be at least 6 characters.");
+            .WithErrorMessage("Password must be at least 8 characters.");
     }
 
     [Fact]

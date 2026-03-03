@@ -7,7 +7,7 @@ namespace ForumWebsite.Services.Interfaces
     {
         Task<PagedResult<PostDto>> GetPostsAsync(int page, int pageSize);
         Task<PostDetailDto>        GetPostByIdAsync(int id);
-        Task<PostDto>              CreatePostAsync(int userId, CreatePostDto dto);
+        Task<PostDetailDto>        CreatePostAsync(int userId, CreatePostDto dto);
 
         /// <param name="requestingUserId">The authenticated user's ID.</param>
         /// <param name="requestingUserRole">The authenticated user's role (User | Admin).</param>

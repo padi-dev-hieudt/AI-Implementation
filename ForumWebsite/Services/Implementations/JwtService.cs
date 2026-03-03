@@ -9,20 +9,31 @@ namespace ForumWebsite.Services.Implementations
 {
     public class JwtService : IJwtService
     {
-        private readonly IConfiguration _configuration;
+        private readonly string  _secretKey;
+        private readonly string? _issuer;
+        private readonly string? _audience;
+        private readonly int     _expiryHours;
 
         public JwtService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            var section = configuration.GetSection("JwtSettings");
+
+            // Fail-fast at construction so misconfiguration is caught at startup,
+            // not silently on the first token generation request.
+            _secretKey = section["SecretKey"]
+                ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
+
+            _issuer   = section["Issuer"];
+            _audience = section["Audience"];
+
+            // int.TryParse prevents a FormatException if the config value is missing or
+            // non-numeric; falls back to 24 h so the service stays operational.
+            _expiryHours = int.TryParse(section["ExpiryHours"], out var h) ? h : 24;
         }
 
         public string GenerateToken(User user)
         {
-            var jwtSection = _configuration.GetSection("JwtSettings");
-            var secretKey  = jwtSection["SecretKey"]
-                ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.");
-
-            var key         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var key         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             // Claims embedded in the token — used by controllers via User.FindFirstValue()
@@ -36,8 +47,8 @@ namespace ForumWebsite.Services.Implementations
             };
 
             var token = new JwtSecurityToken(
-                issuer:             jwtSection["Issuer"],
-                audience:           jwtSection["Audience"],
+                issuer:             _issuer,
+                audience:           _audience,
                 claims:             claims,
                 expires:            GetTokenExpiry(),
                 signingCredentials: credentials
@@ -46,13 +57,6 @@ namespace ForumWebsite.Services.Implementations
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public DateTime GetTokenExpiry()
-        {
-            // int.TryParse prevents an unhandled FormatException if the config value is
-            // missing or non-numeric; falls back to 24 h so the service stays operational.
-            var raw   = _configuration["JwtSettings:ExpiryHours"];
-            var hours = int.TryParse(raw, out var parsed) ? parsed : 24;
-            return DateTime.UtcNow.AddHours(hours);
-        }
+        public DateTime GetTokenExpiry() => DateTime.UtcNow.AddHours(_expiryHours);
     }
 }

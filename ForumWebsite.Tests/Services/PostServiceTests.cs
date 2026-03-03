@@ -18,7 +18,7 @@ public class PostServiceTests
     private readonly IMapper _mapper =
         new MapperConfiguration(c => c.AddProfile<AutoMapperProfile>()).CreateMapper();
 
-    private PostService CreateSut() => new(_postRepoMock.Object, _mapper);
+    private PostService CreateSut() => new(_postRepoMock.Object, _mapper, new Ganss.Xss.HtmlSanitizer());
 
     // ── GetPostsAsync ─────────────────────────────────────────────────────────
 
