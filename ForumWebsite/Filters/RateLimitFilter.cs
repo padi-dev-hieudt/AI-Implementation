@@ -14,17 +14,13 @@ namespace ForumWebsite.Filters
     /// Fixed-window implementation
     /// ───────────────────────────
     /// The counter entry is created ONCE with an absolute TTL.  On subsequent
-    /// requests within the window the cached object's Count is mutated IN PLACE —
-    /// we never call cache.Set again, so the TTL is not reset.
-    ///
-    /// This matters because if we called cache.Set on every increment the window
-    /// would slide: 4 requests/14 min would NEVER trigger the limit.
+    /// requests within the window the cached object's counter is mutated IN PLACE
+    /// via Interlocked.Increment — we never call cache.Set again, so the TTL is
+    /// not reset (avoids the sliding-window bug).
     ///
     /// Limitations (acceptable for Phase 1):
     ///   • In-memory only — resets on restart, not shared across instances.
     ///     Upgrade to IDistributedCache (Redis) for multi-node deployments.
-    ///   • Count mutation is not Interlocked — under extreme concurrency a few
-    ///     extra requests may slip through. For auth endpoints this is acceptable.
     ///   • IP spoofing is possible; combine with account-level lockout for defence-in-depth.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
@@ -55,20 +51,19 @@ namespace ForumWebsite.Filters
             var ip  = context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var key = $"rl:{context.ActionDescriptor.DisplayName}:{ip}";
 
-            // GetOrCreate is called on every request but only CREATES an entry on
-            // the first call — subsequent calls return the SAME reference object.
-            // By mutating Counter.Count on the returned reference we update the
-            // cached value without calling Set, which would reset the TTL (sliding window bug).
+            // GetOrCreate returns the SAME reference object on subsequent calls.
+            // By using Interlocked.Increment on the returned reference we update the
+            // cached value atomically without calling Set (which would reset the TTL).
             var counter = _cache.GetOrCreate(key, entry =>
             {
-                // TTL is set ONLY on first creation — this is the fixed-window boundary
+                // TTL is set ONLY on first creation — this is the fixed-window boundary.
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_windowSeconds);
                 return new RateLimitCounter();
             })!;
 
-            counter.Count++;
+            var current = counter.Increment();
 
-            if (counter.Count > _maxAttempts)
+            if (current > _maxAttempts)
             {
                 context.HttpContext.Response.Headers["Retry-After"] = _windowSeconds.ToString();
 
@@ -87,10 +82,16 @@ namespace ForumWebsite.Filters
         /// Mutable reference type used as the cache value.
         /// Because it is a class (not a struct), the cache holds a reference and
         /// mutations are visible to all subsequent cache lookups without re-calling Set.
+        /// Interlocked.Increment makes increments atomic — safe under concurrent requests.
         /// </summary>
         private sealed class RateLimitCounter
         {
-            public int Count { get; set; }
+            private int _count;
+
+            /// <summary>Atomically increments the counter and returns the new value.</summary>
+            public int Increment() => Interlocked.Increment(ref _count);
+
+            public int Count => Volatile.Read(ref _count);
         }
     }
 }

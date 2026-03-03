@@ -1,0 +1,60 @@
+@{
+    ViewData["Title"] = "Tạo bài viết mới";
+}
+
+<!-- Guest prompt (shown by forum.js when not logged in) -->
+<div id="createPostLoginPrompt" class="d-none">
+    <div class="forum-card p-5 text-center">
+        <i class="bi bi-lock fs-1 text-muted d-block mb-3"></i>
+        <h5 class="mb-2">Bạn cần đăng nhập</h5>
+        <p class="text-muted mb-3">Vui lòng đăng nhập để tạo bài viết mới.</p>
+        <button class="btn btn-primary"
+                data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+        </button>
+    </div>
+</div>
+
+<!-- Create-post form (shown by forum.js when logged in) -->
+<div id="createPostFormWrapper" class="d-none">
+    <div class="forum-card">
+        <div class="forum-card-header">
+            <span class="fw-semibold">
+                <i class="bi bi-pencil-square me-1"></i>Tạo bài viết mới
+            </span>
+        </div>
+        <div class="p-4">
+            <div id="createPostError" class="alert alert-danger py-2 small d-none"></div>
+            <form id="createPostForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">
+                        Tiêu đề <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="postTitle"
+                           placeholder="Nhập tiêu đề bài viết (10 – 300 ký tự)" required />
+                    <div class="form-text text-end" id="titleCharCount">0 / 300</div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-medium">
+                        Nội dung <span class="text-danger">*</span>
+                    </label>
+                    <!-- Quill editor container (height set in site.css) -->
+                    <div id="postContentEditor"></div>
+                    <!-- Hidden input carries the HTML value to JS on submit -->
+                    <input type="hidden" id="postContent" />
+                    <div class="form-text d-flex justify-content-between mt-1">
+                        <small class="text-muted">Hỗ trợ định dạng văn bản phong phú</small>
+                        <small id="contentCharCount" class="text-muted">0 ký tự</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary fw-semibold" id="btnCreatePost">
+                        <span id="createSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+                        <i class="bi bi-send me-1"></i>Đăng bài viết
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

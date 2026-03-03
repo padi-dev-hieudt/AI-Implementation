@@ -29,6 +29,9 @@
 
     <!-- Password hashing -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+
+    <!-- HTML sanitization (server-side, for rich text post content) -->
+    <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
   </ItemGroup>
 
 </Project>

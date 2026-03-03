@@ -5,8 +5,11 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "https://localhost:7000" },
-    { "key": "token",   "value": "" }
+    { "key": "baseUrl",    "value": "https://localhost:7000" },
+    { "key": "token",      "value": "" },
+    { "key": "userId",     "value": "" },
+    { "key": "postId",     "value": "" },
+    { "key": "commentId",  "value": "" }
   ],
   "item": [
 
@@ -71,13 +74,51 @@
             "script": {
               "exec": [
                 "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                "pm.test('Has username', () => pm.expect(pm.response.json().data.username).to.be.a('string'));"
+                "const d = pm.response.json().data;",
+                "pm.test('Has username', () => pm.expect(d.username).to.be.a('string'));",
+                "pm.collectionVariables.set('userId', d.id);"
               ]
             }
           }]
         },
         {
-          "name": "Login – wrong password (expect 403)",
+          "name": "Get Profile (own)",
+          "request": {
+            "method": "GET",
+            "url":    "{{baseUrl}}/api/user/profile/{{userId}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "const d = pm.response.json().data;",
+                "pm.test('Has postCount', () => pm.expect(d.postCount).to.be.a('number'));",
+                "pm.test('Has commentCount', () => pm.expect(d.commentCount).to.be.a('number'));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url":    "{{baseUrl}}/api/user/logout",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "pm.test('Success flag', () => pm.expect(pm.response.json().success).to.be.true);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login – wrong password (expect 401)",
           "request": {
             "method": "POST",
             "url":    "{{baseUrl}}/api/user/login",
@@ -91,7 +132,8 @@
             "listen": "test",
             "script": {
               "exec": [
-                "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
               ]
             }
           }]

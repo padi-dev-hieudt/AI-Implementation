@@ -11,15 +11,16 @@ namespace ForumWebsite.Data.Repositories.Implementations
 
         public async Task<(IEnumerable<Post> Posts, int TotalCount)> GetPagedAsync(int page, int pageSize)
         {
-            var query = _dbSet
+            // Count on a predicate-only query — no JOINs to Users or Comments.
+            // Calling CountAsync() on a query that already carries .Include() forces the DB
+            // to emit a COUNT with unnecessary JOINs, increasing I/O and parse cost.
+            var totalCount = await _dbSet.CountAsync(p => !p.IsDeleted);
+
+            var posts = await _dbSet
                 .Where(p => !p.IsDeleted)
                 .Include(p => p.User)
                 .Include(p => p.Comments.Where(c => !c.IsDeleted))
-                .OrderByDescending(p => p.CreatedAt);
-
-            var totalCount = await query.CountAsync();
-
-            var posts = await query
+                .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

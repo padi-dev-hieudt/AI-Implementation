@@ -47,12 +47,15 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    // HTTPS redirection only in non-development. In development, the launchSettings.json
+    // profile starts on HTTPS directly, so no redirect is needed. Keeping this in
+    // development also breaks integration tests: HttpClient strips the Authorization
+    // header when following an HTTP→HTTPS redirect (Bearer token leakage prevention).
+    app.UseHttpsRedirection();
 }
 
 // ── Global JSON error handler — before routing ────────────────────────────────
 app.UseMiddleware<ExceptionMiddleware>();
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -69,3 +72,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Expose the implicit Program class so WebApplicationFactory<Program>
+// can be used from the test project.
+public partial class Program { }

@@ -25,6 +25,13 @@ namespace ForumWebsite.Services.Implementations
 
         public async Task<IEnumerable<CommentDto>> GetCommentsByPostAsync(int postId)
         {
+            // Verify the post exists before querying comments.
+            // Without this check, a request for an unknown postId returns 200 [] instead of 404,
+            // making it impossible for callers to distinguish "no comments" from "post not found".
+            var post = await _postRepository.GetByIdAsync(postId);
+            if (post == null || post.IsDeleted)
+                throw new KeyNotFoundException($"Post {postId} not found.");
+
             var comments = await _commentRepository.GetByPostIdAsync(postId);
             return _mapper.Map<IEnumerable<CommentDto>>(comments);
         }

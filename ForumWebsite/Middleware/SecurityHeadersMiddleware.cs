@@ -41,10 +41,13 @@ namespace ForumWebsite.Middleware
 
             headers["Content-Security-Policy"] =
                 "default-src 'self'; " +
-                "script-src 'self'; " +
-                "style-src 'self' 'unsafe-inline'; " +  // 'unsafe-inline' needed for MVC views; remove when on SPA
-                "img-src 'self' data:; " +
-                "font-src 'self'; " +
+                // cdn.jsdelivr.net: Quill.js rich-text editor
+                "script-src 'self' https://cdn.jsdelivr.net; " +
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+                // Bootstrap Icons + Quill fonts are served from jsDelivr CDN.
+                "font-src 'self' https://cdn.jsdelivr.net; " +
+                // data: URIs needed for Quill clipboard-pasted images
+                "img-src 'self' data: blob:; " +
                 "connect-src 'self'; " +
                 "frame-ancestors 'none';";
 

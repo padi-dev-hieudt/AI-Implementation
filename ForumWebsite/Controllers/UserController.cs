@@ -1,5 +1,6 @@
 using ForumWebsite.Filters;
 using ForumWebsite.Models.DTOs.User;
+using ForumWebsite.Models.Entities;
 using ForumWebsite.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -87,7 +88,7 @@ namespace ForumWebsite.Controllers
             var currentUserId   = GetCurrentUserId();
             var currentUserRole = GetCurrentUserRole();
 
-            if (id != currentUserId && currentUserRole != "Admin")
+            if (id != currentUserId && currentUserRole != UserRoles.Admin)
                 return Forbid();
 
             var profile = await _userService.GetProfileAsync(id);

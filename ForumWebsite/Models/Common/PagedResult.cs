@@ -12,7 +12,8 @@ namespace ForumWebsite.Models.Common
         public int            TotalCount { get; set; }
 
         // Computed helpers — no storage in DB
-        public int  TotalPages      => (int)Math.Ceiling((double)TotalCount / PageSize);
+        // Guard PageSize > 0: controller clamps it, but this type should be self-defending.
+        public int  TotalPages      => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
         public bool HasPreviousPage => Page > 1;
         public bool HasNextPage     => Page < TotalPages;
     }

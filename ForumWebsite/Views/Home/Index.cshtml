@@ -1,8 +1,77 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- ── Stats row ─────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num" id="statTopics">—</div>
+            <div class="stat-label"><i class="bi bi-collection me-1"></i>Chủ đề</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num" id="statReplies">—</div>
+            <div class="stat-label"><i class="bi bi-chat me-1"></i>Trả lời</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num" id="statViews">—</div>
+            <div class="stat-label"><i class="bi bi-eye me-1"></i>Lượt xem</div>
+        </div>
+    </div>
 </div>
+
+<!-- ── Topic list ─────────────────────────────────────────────── -->
+<div class="forum-card">
+
+    <!-- Card header -->
+    <div class="forum-card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">
+            <i class="bi bi-chat-dots me-1"></i>Tất cả chủ đề
+        </span>
+        <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+            <option value="10">10 / trang</option>
+            <option value="20" selected>20 / trang</option>
+            <option value="50">50 / trang</option>
+        </select>
+    </div>
+
+    <!-- Column headers (desktop) -->
+    <div class="topic-header-row d-none d-md-flex">
+        <div class="th-topic">Chủ đề</div>
+        <div class="th-stat text-center">Trả lời</div>
+        <div class="th-stat text-center">Lượt xem</div>
+        <div class="th-activity">Hoạt động</div>
+    </div>
+
+    <!-- Dynamic rows -->
+    <div id="topicList">
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="d-none text-center py-5 px-3">
+        <i class="bi bi-chat-square fs-1 text-muted d-block mb-3"></i>
+        <p class="text-muted mb-3">Chưa có bài viết nào. Hãy là người đầu tiên!</p>
+        <button class="btn btn-primary" id="emptyPostBtn">
+            <i class="bi bi-plus-lg me-1"></i>Đăng bài đầu tiên
+        </button>
+    </div>
+
+</div>
+
+<!-- ── Pagination ─────────────────────────────────────────────── -->
+<div id="paginationWrapper" class="d-none d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+    <span class="text-muted small" id="paginationInfo"></span>
+    <nav aria-label="Phân trang">
+        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+    </nav>
+</div>
+

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build --no-restore)",
+      "Bash(dotnet ef migrations add InitialCreate)",
+      "Bash(dotnet tool install --global dotnet-ef)",
+      "Bash(\"C:/Users/Admin/.dotnet/tools/dotnet-ef\" migrations add InitialCreate)",
+      "Bash(dotnet tool uninstall --global dotnet-ef)",
+      "Bash(dotnet tool install --global dotnet-ef --version 6.0.25)",
+      "Bash(\"C:/Users/Admin/.dotnet/tools/dotnet-ef\" migrations remove --force)",
+      "Bash(\"C:/Users/Admin/.dotnet/tools/dotnet-ef\" database update)",
+      "Bash(dotnet build)",
+      "Bash(dotnet build ForumWebsite.Tests/ForumWebsite.Tests.csproj --no-restore -v quiet)",
+      "Bash(dotnet restore ForumWebsite.Tests/ForumWebsite.Tests.csproj)",
+      "Bash(dotnet build ForumWebsite.Tests/ForumWebsite.Tests.csproj)",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj --no-build --logger \"console;verbosity=normal\")",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj --no-build --logger \"console;verbosity=detailed\")",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj --no-build)",
+      "Bash(dotnet restore)",
+      "Bash(dotnet package search HtmlSanitizer --source https://api.nuget.org/v3/index.json)",
+      "Bash(dotnet test ForumWebsite.Tests/ --no-build)",
+      "Bash(dotnet test ForumWebsite.Tests/ --filter \"Validator\" --no-build)"
+    ]
+  }
+}

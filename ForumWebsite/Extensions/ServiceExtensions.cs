@@ -53,11 +53,32 @@ namespace ForumWebsite.Extensions
         // ── Application Services ──────────────────────────────────────────────────
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddSingleton(BuildHtmlSanitizer());
             services.AddScoped<IJwtService,     JwtService>();
             services.AddScoped<IUserService,    UserService>();
             services.AddScoped<IPostService,    PostService>();
             services.AddScoped<ICommentService, CommentService>();
             return services;
+        }
+
+        private static Ganss.Xss.HtmlSanitizer BuildHtmlSanitizer()
+        {
+            var san = new Ganss.Xss.HtmlSanitizer();
+
+            // Tags produced by Quill snow toolbar
+            san.AllowedTags.UnionWith(new[] {
+                "p", "br", "strong", "em", "u", "s",
+                "h2", "h3", "ul", "ol", "li",
+                "blockquote", "pre", "code",
+                "a", "img", "span"
+            });
+
+            san.AllowedAttributes.UnionWith(new[] { "href", "src", "alt", "class", "target", "rel" });
+
+            // data: URIs for clipboard-pasted images; http/https for remote images
+            san.AllowedSchemes.UnionWith(new[] { "http", "https", "data" });
+
+            return san;
         }
 
         // ── JWT Authentication ────────────────────────────────────────────────────

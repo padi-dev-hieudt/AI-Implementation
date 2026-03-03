@@ -48,7 +48,10 @@ namespace ForumWebsite.Services.Implementations
 
         public DateTime GetTokenExpiry()
         {
-            var hours = int.Parse(_configuration["JwtSettings:ExpiryHours"] ?? "24");
+            // int.TryParse prevents an unhandled FormatException if the config value is
+            // missing or non-numeric; falls back to 24 h so the service stays operational.
+            var raw   = _configuration["JwtSettings:ExpiryHours"];
+            var hours = int.TryParse(raw, out var parsed) ? parsed : 24;
             return DateTime.UtcNow.AddHours(hours);
         }
     }

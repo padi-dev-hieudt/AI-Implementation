@@ -1,4 +1,5 @@
 using AutoMapper;
+using Ganss.Xss;
 using ForumWebsite.Data.Repositories.Interfaces;
 using ForumWebsite.Models.Common;
 using ForumWebsite.Models.DTOs.Post;
@@ -11,11 +12,13 @@ namespace ForumWebsite.Services.Implementations
     {
         private readonly IPostRepository _postRepository;
         private readonly IMapper         _mapper;
+        private readonly HtmlSanitizer   _sanitizer;
 
-        public PostService(IPostRepository postRepository, IMapper mapper)
+        public PostService(IPostRepository postRepository, IMapper mapper, HtmlSanitizer sanitizer)
         {
             _postRepository = postRepository;
             _mapper         = mapper;
+            _sanitizer      = sanitizer;
         }
 
         public async Task<PagedResult<PostDto>> GetPostsAsync(int page, int pageSize)
@@ -51,7 +54,7 @@ namespace ForumWebsite.Services.Implementations
             var post = new Post
             {
                 Title     = dto.Title.Trim(),
-                Content   = dto.Content.Trim(),
+                Content   = _sanitizer.Sanitize(dto.Content.Trim()),
                 UserId    = userId,
                 CreatedAt = DateTime.UtcNow
             };
@@ -75,7 +78,7 @@ namespace ForumWebsite.Services.Implementations
             EnsureOwnerOrAdmin(post.UserId, requestingUserId, requestingUserRole, "edit");
 
             post.Title     = dto.Title.Trim();
-            post.Content   = dto.Content.Trim();
+            post.Content   = _sanitizer.Sanitize(dto.Content.Trim());
             post.UpdatedAt = DateTime.UtcNow;
 
             await _postRepository.UpdateAsync(post);

@@ -44,8 +44,12 @@ namespace ForumWebsite.Data.Context
                 entity.Property(e => e.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
 
-                entity.Property(e => e.IsActive)
-                      .HasDefaultValue(true);
+                // Do NOT use HasDefaultValue(true) here.
+                // EF Core skips sending bool columns when their value equals the CLR default (false),
+                // relying on the DB default instead. This would make it impossible to explicitly
+                // persist IsActive = false for a new record. The entity initializer (= true)
+                // is sufficient; EF will always send the value explicitly.
+                // entity.Property(e => e.IsActive).HasDefaultValue(true);  // intentionally removed
 
                 // Unique constraints — enforced at DB level as well as application level
                 entity.HasIndex(e => e.Username).IsUnique().HasDatabaseName("UX_Users_Username");

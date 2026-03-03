@@ -46,7 +46,7 @@ namespace RBAC_WPF_2026 {
         /// </summary>
         [System.STAThreadAttribute()]
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.1.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "9.0.7.0")]
         public static void Main() {
             RBAC_WPF_2026.App app = new RBAC_WPF_2026.App();
             app.Run();
