@@ -97,6 +97,33 @@ const Utils = (() => {
         return String(n);
     }
 
+    const _vnMap = {
+        'à':'a','á':'a','ả':'a','ã':'a','ạ':'a',
+        'ă':'a','ắ':'a','ặ':'a','ằ':'a','ẳ':'a','ẵ':'a',
+        'â':'a','ấ':'a','ầ':'a','ẩ':'a','ẫ':'a','ậ':'a',
+        'è':'e','é':'e','ẻ':'e','ẽ':'e','ẹ':'e',
+        'ê':'e','ế':'e','ề':'e','ể':'e','ễ':'e','ệ':'e',
+        'ì':'i','í':'i','ỉ':'i','ĩ':'i','ị':'i',
+        'ò':'o','ó':'o','ỏ':'o','õ':'o','ọ':'o',
+        'ô':'o','ố':'o','ồ':'o','ổ':'o','ỗ':'o','ộ':'o',
+        'ơ':'o','ớ':'o','ờ':'o','ở':'o','ỡ':'o','ợ':'o',
+        'ù':'u','ú':'u','ủ':'u','ũ':'u','ụ':'u',
+        'ư':'u','ứ':'u','ừ':'u','ử':'u','ữ':'u','ự':'u',
+        'ỳ':'y','ý':'y','ỷ':'y','ỹ':'y','ỵ':'y',
+        'đ':'d'
+    };
+
+    function slugify(text) {
+        return String(text)
+            .toLowerCase()
+            .replace(/[^\u0000-\u007E]/g, c => _vnMap[c] || '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .substring(0, 80);
+    }
+
     function flash(message, type) {
         const container = document.getElementById('flashContainer');
         const msgEl     = document.getElementById('flashMsg');
@@ -117,7 +144,7 @@ const Utils = (() => {
         msgEl.addEventListener('closed.bs.alert', () => clearTimeout(tid), { once: true });
     }
 
-    return { timeAgo, strToColor, avatarHtml, escapeHtml, fmtNum, flash };
+    return { timeAgo, strToColor, avatarHtml, escapeHtml, fmtNum, flash, slugify };
 })();
 
 /* ── Auth ────────────────────────────────────────────────────────
@@ -167,6 +194,8 @@ const Auth = (() => {
                 ddRole.textContent = _user.role;
                 ddRole.className   = `badge mt-1 badge-role-${(_user.role || 'user').toLowerCase()}`;
             }
+            const ddProfileLink = document.getElementById('ddProfileLink');
+            if (ddProfileLink && _user.id) ddProfileLink.href = `/profile/${_user.id}`;
         } else {
             guestNav.classList.remove('d-none');
             userNav.classList.add('d-none');
@@ -391,7 +420,7 @@ const Forum = (() => {
             list.querySelectorAll('.topic-row[data-post-id]').forEach(row => {
                 row.addEventListener('click', e => {
                     if (!e.target.closest('a'))
-                        location.href = `/post/${row.dataset.postId}`;
+                        location.href = `/post/${row.dataset.slug}/${row.dataset.postId}`;
                 });
             });
 
@@ -418,7 +447,7 @@ const Forum = (() => {
         const timeStr  = Utils.timeAgo(post.createdAt);
 
         return `
-        <div class="topic-row" data-post-id="${post.id}">
+        <div class="topic-row" data-post-id="${post.id}" data-slug="${Utils.slugify(post.title)}">
             <div class="topic-avatar-wrap">${avatar}</div>
             <div class="topic-body">
                 <div class="topic-title">${title}</div>
@@ -547,6 +576,13 @@ const PostDetail = (() => {
             /* Update page title */
             document.title = `${post.title} — Forum`;
 
+            /* Canonicalize slug — silently correct the URL if it doesn't match */
+            const correctSlug = Utils.slugify(post.title);
+            const canonical   = `/post/${correctSlug}/${_postId}`;
+            if (window.location.pathname !== canonical) {
+                history.replaceState(null, '', canonical);
+            }
+
             _renderPost(post);
             _showCommentSection(post.comments || []);
 
@@ -565,15 +601,21 @@ const PostDetail = (() => {
         const container = document.getElementById('postContainer');
         if (!container) return;
 
-        const avatar   = Utils.avatarHtml(post.username);
-        const canEdit  = Auth.user && (Auth.user.id === post.userId || Auth.user.role === 'Admin');
-        const edited   = post.updatedAt
+        const avatar     = Utils.avatarHtml(post.username);
+        const isOwner    = Auth.user && Auth.user.id === post.userId;
+        const isAdmin    = Auth.user && Auth.user.role === 'Admin';
+        const canEdit    = isOwner;                   // only owner
+        const canDelete  = isOwner || isAdmin;        // owner or admin
+        const canClose   = isAdmin;                   // admin only
+        const edited     = post.updatedAt
             ? `<span class="fst-italic text-muted small ms-1">(đã chỉnh sửa)</span>` : '';
+        const closedBadge = post.isClosed
+            ? `<span class="badge bg-secondary ms-2"><i class="bi bi-lock me-1"></i>Đã đóng</span>` : '';
 
         container.innerHTML = `
         <div class="post-detail-card">
             <div class="post-header">
-                <h1 class="post-title">${Utils.escapeHtml(post.title)}</h1>
+                <h1 class="post-title">${Utils.escapeHtml(post.title)}${closedBadge}</h1>
                 <div class="post-author-row">
                     ${avatar}
                     <div>
@@ -588,14 +630,20 @@ const PostDetail = (() => {
                     <span><i class="bi bi-eye me-1"></i>${Utils.fmtNum(post.viewCount)} lượt xem</span>
                     <span><i class="bi bi-chat me-1"></i>${post.commentCount || 0} bình luận</span>
                 </div>
-                ${canEdit ? `
+                ${(canEdit || canDelete || canClose) ? `
                 <div class="post-actions">
+                    ${canEdit ? `
                     <button class="btn btn-outline-secondary btn-sm" id="btnEditPost">
                         <i class="bi bi-pencil me-1"></i>Sửa
-                    </button>
+                    </button>` : ''}
+                    ${canDelete ? `
                     <button class="btn btn-outline-danger btn-sm" id="btnDeletePost">
                         <i class="bi bi-trash me-1"></i>Xóa
-                    </button>
+                    </button>` : ''}
+                    ${canClose ? `
+                    <button class="btn btn-outline-warning btn-sm" id="btnClosePost">
+                        <i class="bi bi-${post.isClosed ? 'unlock' : 'lock'} me-1"></i>${post.isClosed ? 'Mở lại' : 'Đóng'}
+                    </button>` : ''}
                 </div>` : ''}
             </div>
         </div>`;
@@ -604,10 +652,9 @@ const PostDetail = (() => {
         const bodyEl = document.getElementById('postBodyContent');
         if (bodyEl) bodyEl.innerHTML = post.content;
 
-        if (canEdit) {
-            document.getElementById('btnEditPost')?.addEventListener('click', () => _showEditPost(post));
-            document.getElementById('btnDeletePost')?.addEventListener('click', () => _deletePost());
-        }
+        if (canEdit)   document.getElementById('btnEditPost')?.addEventListener('click', () => _showEditPost(post));
+        if (canDelete) document.getElementById('btnDeletePost')?.addEventListener('click', () => _deletePost());
+        if (canClose)  document.getElementById('btnClosePost')?.addEventListener('click', () => _toggleClose(post));
     }
 
     function _showCommentSection(comments) {
@@ -745,6 +792,17 @@ const PostDetail = (() => {
             setTimeout(() => { location.href = '/'; }, 800);
         } catch (err) {
             Utils.flash('Xóa thất bại: ' + err.message, 'danger');
+        }
+    }
+
+    async function _toggleClose(post) {
+        const action = post.isClosed ? 'mở lại' : 'đóng';
+        if (!confirm(`Bạn có chắc muốn ${action} bài viết này?`)) return;
+        try {
+            await Api.put(`/api/post/${_postId}/close`);
+            await _load();
+        } catch (err) {
+            Utils.flash(`Thất bại: ${err.message}`, 'danger');
         }
     }
 
@@ -897,6 +955,183 @@ const PostDetail = (() => {
     return { init };
 })();
 
+/* ── UserProfile ─────────────────────────────────────────────────
+   Loads public profile and paginated post list for /profile/{id}.
+   ─────────────────────────────────────────────────────────────── */
+const UserProfile = (() => {
+    let _userId   = 0;
+    let _pageSize = 20;
+
+    async function init(userId) {
+        _userId = userId;
+        await Promise.all([_loadProfile(), _loadPosts(1)]);
+    }
+
+    async function _loadProfile() {
+        const header = document.getElementById('profileHeader');
+        if (!header) return;
+
+        try {
+            const res  = await Api.get(`/api/user/profile/${_userId}`);
+            const user = res.data;
+
+            const bc = document.getElementById('breadcrumbUsername');
+            if (bc) bc.textContent = user.username;
+            document.title = `${user.username} — Forum`;
+
+            const avatar  = Utils.avatarHtml(user.username, 'profile-avatar');
+            const roleCls = (user.role || 'user').toLowerCase();
+
+            header.innerHTML = `
+            <div class="forum-card p-4 mb-2">
+                <div class="d-flex align-items-center gap-4 flex-wrap">
+                    ${avatar}
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h4 class="mb-0 fw-bold">${Utils.escapeHtml(user.username)}</h4>
+                            <span class="badge badge-role-${roleCls}">${Utils.escapeHtml(user.role)}</span>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            <i class="bi bi-calendar3 me-1"></i>Tham gia ${Utils.timeAgo(user.createdAt)}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-4 flex-wrap text-center">
+                        <div>
+                            <div class="fs-5 fw-bold text-primary">${Utils.fmtNum(user.postCount)}</div>
+                            <div class="text-muted small">bài viết</div>
+                        </div>
+                        <div>
+                            <div class="fs-5 fw-bold text-primary">${Utils.fmtNum(user.commentCount)}</div>
+                            <div class="text-muted small">bình luận</div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        } catch {
+            const header = document.getElementById('profileHeader');
+            if (header) header.innerHTML = `
+            <div class="forum-card p-5 text-center">
+                <i class="bi bi-person-x fs-1 text-danger d-block mb-3"></i>
+                <h5>Không tìm thấy người dùng</h5>
+                <a href="/" class="btn btn-primary mt-2">Quay về trang chủ</a>
+            </div>`;
+        }
+    }
+
+    async function _loadPosts(page) {
+        const section = document.getElementById('profilePostSection');
+        const listEl  = document.getElementById('profilePostList');
+        const totalEl = document.getElementById('profilePostTotal');
+        if (!listEl) return;
+
+        listEl.innerHTML = `
+            <div class="d-flex justify-content-center py-4">
+                <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+            </div>`;
+
+        try {
+            const res   = await Api.get(`/api/post/user/${_userId}?page=${page}&pageSize=${_pageSize}`);
+            const paged = res.data;
+
+            section?.classList.remove('d-none');
+            if (totalEl) totalEl.textContent = paged.totalCount;
+
+            if (!paged.items || paged.items.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-4 text-muted small">
+                        <i class="bi bi-inbox d-block fs-4 mb-2"></i>Chưa có bài viết nào.
+                    </div>`;
+                return;
+            }
+
+            listEl.innerHTML = paged.items.map(_renderRow).join('');
+
+            listEl.querySelectorAll('.topic-row[data-post-id]').forEach(row => {
+                row.addEventListener('click', e => {
+                    if (!e.target.closest('a'))
+                        location.href = `/post/${row.dataset.slug}/${row.dataset.postId}`;
+                });
+            });
+
+            _renderPagination(paged);
+
+        } catch (err) {
+            listEl.innerHTML = `
+                <div class="text-center py-4 text-muted small">
+                    <i class="bi bi-exclamation-triangle me-1"></i>${Utils.escapeHtml(err.message)}
+                </div>`;
+        }
+    }
+
+    function _renderRow(post) {
+        const title   = Utils.escapeHtml(post.title);
+        const timeStr = Utils.timeAgo(post.createdAt);
+        return `
+        <div class="topic-row" data-post-id="${post.id}" data-slug="${Utils.slugify(post.title)}">
+            <div class="topic-body" style="padding-left:0">
+                <div class="topic-title">${title}</div>
+                <div class="topic-meta">${timeStr}</div>
+            </div>
+            <div class="topic-stat-col d-none d-md-block">
+                <div class="topic-stat-val">${Utils.fmtNum(post.commentCount || 0)}</div>
+                <div class="topic-stat-lbl">trả lời</div>
+            </div>
+            <div class="topic-stat-col d-none d-md-block">
+                <div class="topic-stat-val">${Utils.fmtNum(post.viewCount || 0)}</div>
+                <div class="topic-stat-lbl">lượt xem</div>
+            </div>
+            <div class="topic-activity d-none d-md-block">${timeStr}</div>
+        </div>`;
+    }
+
+    function _renderPagination(paged) {
+        const wrap = document.getElementById('profilePaginationWrapper');
+        const info = document.getElementById('profilePaginationInfo');
+        const ul   = document.getElementById('profilePagination');
+        if (!wrap || !info || !ul) return;
+
+        if (paged.totalPages <= 1) { wrap.classList.add('d-none'); return; }
+        wrap.classList.remove('d-none');
+
+        const cur   = paged.page;
+        const total = paged.totalPages;
+        const start = (cur - 1) * paged.pageSize + 1;
+        const end   = Math.min(cur * paged.pageSize, paged.totalCount);
+        info.textContent = `Hiển thị ${start}–${end} / ${paged.totalCount} bài viết`;
+
+        const items = [];
+        items.push(`<li class="page-item ${cur === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${cur - 1}"><i class="bi bi-chevron-left"></i></a></li>`);
+
+        const range = new Set([1, total]);
+        for (let p = Math.max(2, cur - 2); p <= Math.min(total - 1, cur + 2); p++) range.add(p);
+        [...range].sort((a, b) => a - b).reduce((prev, p) => {
+            if (p - prev > 1)
+                items.push(`<li class="page-item disabled"><span class="page-link">&hellip;</span></li>`);
+            items.push(`<li class="page-item ${p === cur ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${p}">${p}</a></li>`);
+            return p;
+        }, 0);
+
+        items.push(`<li class="page-item ${cur === total ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${cur + 1}"><i class="bi bi-chevron-right"></i></a></li>`);
+
+        ul.innerHTML = items.join('');
+        ul.querySelectorAll('.page-link[data-page]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const p = parseInt(link.dataset.page, 10);
+                if (p >= 1 && p <= total && p !== cur) {
+                    _loadPosts(p);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    return { init };
+})();
+
 /* ── CreatePost ──────────────────────────────────────────────────
    Handles the /post/create page.
    ─────────────────────────────────────────────────────────────── */
@@ -964,7 +1199,7 @@ const CreatePost = (() => {
 
                 const res = await Api.post('/api/post', { title, content });
                 Utils.flash('Đã đăng bài viết!', 'success');
-                setTimeout(() => { location.href = `/post/${res.data.id}`; }, 500);
+                setTimeout(() => { location.href = `/post/${Utils.slugify(res.data.title)}/${res.data.id}`; }, 500);
 
             } catch (err) {
                 if (errEl) { errEl.textContent = err.message; errEl.classList.remove('d-none'); }
@@ -1008,7 +1243,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         CreatePost.init();
 
     } else {
-        const m = path.match(/^\/post\/(\d+)$/i);
-        if (m) await PostDetail.init(parseInt(m[1], 10));
+        const m = path.match(/^\/post\/[^/]+\/(\d+)$/i);
+        if (m) { await PostDetail.init(parseInt(m[1], 10)); return; }
+
+        const mp = path.match(/^\/profile\/(\d+)$/i);
+        if (mp) await UserProfile.init(parseInt(mp[1], 10));
     }
 });

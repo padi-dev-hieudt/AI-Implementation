@@ -9279,11 +9279,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
+      "projectUniqueName": "H:\\paditech\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
       "projectName": "ForumWebsite.Tests",
-      "projectPath": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
+      "projectPath": "H:\\paditech\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite.Tests\\obj\\",
+      "outputPath": "H:\\paditech\\AI-Implementation\\ForumWebsite.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -9298,14 +9298,15 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\ForumWebsite.csproj": {
-              "projectPath": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\ForumWebsite.csproj"
+            "H:\\paditech\\AI-Implementation\\ForumWebsite\\ForumWebsite.csproj": {
+              "projectPath": "H:\\paditech\\AI-Implementation\\ForumWebsite\\ForumWebsite.csproj"
             }
           }
         }
@@ -9320,7 +9321,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net6.0": {
@@ -9383,7 +9384,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302\\RuntimeIdentifierGraph.json"
       }
     }
   }

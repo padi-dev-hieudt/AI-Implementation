@@ -12,5 +12,6 @@ namespace ForumWebsite.Models.DTOs.Post
         public int       CommentCount { get; set; }
         public DateTime  CreatedAt    { get; set; }
         public DateTime? UpdatedAt    { get; set; }
+        public bool      IsClosed     { get; set; }
     }
 }

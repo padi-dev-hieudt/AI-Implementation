@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Hồ sơ";
+}
+
+@section Scripts {
+    <script src="~/js/pages/user-profile.js" asp-append-version="true"></script>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb forum-breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" id="breadcrumbUsername">Đang tải...</li>
+    </ol>
+</nav>
+
+<!-- Profile header -->
+<div id="profileHeader">
+    <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Post list -->
+<div id="profilePostSection" class="d-none mt-4">
+    <div class="forum-card">
+        <div class="forum-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="fw-semibold">
+                <i class="bi bi-file-post me-1"></i>Bài viết đã đăng
+                (<span id="profilePostTotal">0</span>)
+            </span>
+        </div>
+        <div id="profilePostList"></div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="profilePaginationWrapper" class="d-none mt-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <small class="text-muted" id="profilePaginationInfo"></small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="profilePagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>

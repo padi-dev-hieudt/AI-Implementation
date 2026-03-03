@@ -54,6 +54,9 @@ namespace ForumWebsite.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddSingleton(BuildHtmlSanitizer());
+            // Singleton: ViewCountService uses IMemoryCache; its in-process state (dedupe entries)
+            // must live across requests, so Singleton lifetime is required.
+            services.AddSingleton<IViewCountService, ViewCountService>();
             services.AddScoped<IJwtService,     JwtService>();
             services.AddScoped<IUserService,    UserService>();
             services.AddScoped<IPostService,    PostService>();

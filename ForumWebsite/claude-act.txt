@@ -1,4 +1,98 @@
-﻿You must act as 3 roles:
+JS ARCHITECTURE RULES — FORUM WEBSITE
+======================================
+These rules govern all client-side JavaScript in this project.
+
+1. ONE JS FILE PER VIEW
+   • Each MVC view that needs JavaScript has exactly one dedicated file.
+   • Location: wwwroot/js/pages/<view-name>.js  (kebab-case)
+     Examples: home.js, post-detail.js, create-post.js, user-profile.js
+   • The file contains an IIFE module + one DOMContentLoaded listener.
+   • No page logic lives in _Layout.cshtml or any shared file.
+
+2. INCLUDE JS VIA @section Scripts
+   • Views include their page script through the MVC section mechanism:
+       @section Scripts {
+           <script src="~/js/pages/<page-name>.js" asp-append-version="true"></script>
+       }
+   • _Layout.cshtml renders the section just before </body>, after all shared scripts:
+       @RenderSection("Scripts", required: false)
+   • No inline <script> blocks and no onclick/on* attributes anywhere.
+     (CSP: script-src 'self' — unsafe-inline is forbidden.)
+   • For view-specific CSS (e.g. Quill Snow), use @section Styles which renders in <head>:
+       @section Styles {
+           <link rel="stylesheet" href="..." />
+       }
+     _Layout.cshtml renders it at the end of <head>:
+       @RenderSection("Styles", required: false)
+
+3. API CALLS LIVE IN wwwroot/Services/
+   • No direct fetch() calls in page scripts or shared JS.
+   • All HTTP communication goes through named service IIFEs:
+       wwwroot/Services/ApiService.js      — base GET/POST/PUT/DELETE wrapper
+       wwwroot/Services/PostService.js     — /api/post/* methods
+       wwwroot/Services/UserService.js     — /api/user/* methods
+       wwwroot/Services/CommentService.js  — /api/comment/* methods
+   • Service files are pure (no side-effects on load) and are loaded
+     globally in _Layout.cshtml after bootstrap.bundle.min.js.
+   • Standard method names: getAll, getById, getByUser, create, update,
+     remove, login, register, logout, me, getProfile, close.
+
+4. SHARED UTILITIES
+   • wwwroot/js/utils.js  — Utils IIFE: timeAgo, avatarHtml, flash,
+                            slugify, escapeHtml, fmtNum, strToColor.
+                            Also exports _quillToolbar() (shared by editor pages).
+   • wwwroot/js/auth.js   — Auth IIFE: current-user state, nav update,
+                            login/register/logout/search form wiring.
+                            Owns the single global DOMContentLoaded that wires
+                            all modals and resolves Auth.ready.
+                            Exposes Auth.ready — a Promise resolved after
+                            Auth.init() completes (user fetched from /api/user/me).
+   • Both loaded globally in _Layout.cshtml, after all Service files.
+
+5. AUTH ORDERING — await Auth.ready
+   • Page scripts MUST await Auth.ready before accessing Auth.user
+     or rendering any user-sensitive UI:
+       document.addEventListener('DOMContentLoaded', async () => {
+           await Auth.ready;
+           await MyPage.init();
+       });
+   • This guarantees correct auth state regardless of network timing.
+   • Never call Auth.init() from a page script — auth.js owns that.
+
+6. QUILL EDITOR — LOAD ON DEMAND
+   • Quill CSS and JS are NOT loaded globally in _Layout.cshtml.
+   • Only views that use the Quill editor (PostDetail, CreatePost) include
+     both the CSS and the script in their sections:
+       @section Styles {
+           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" />
+       }
+       @section Scripts {
+           <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+           <script src="~/js/pages/<page>.js" asp-append-version="true"></script>
+       }
+   • The page script comes AFTER the Quill CDN script so `new Quill(...)` is available.
+
+7. NAMING & STYLE CONVENTIONS
+   • Module IIFEs: PascalCase (Forum, PostDetail, CreatePost, UserProfile).
+   • Private helpers inside IIFEs: _camelCase prefix (_load, _renderRow...).
+   • Service methods: camelCase (getAll, create, remove...).
+   • No global variables other than the named IIFEs and service objects.
+   • 'use strict'; at the top of every file.
+
+LOAD ORDER IN _Layout.cshtml (bottom of <body>)
+   1. jquery.min.js                (Bootstrap dependency)
+   2. bootstrap.bundle.min.js      (UI components)
+   3. ApiService.js                (base HTTP)
+   4. PostService.js               (uses ApiService)
+   5. UserService.js               (uses ApiService)
+   6. CommentService.js            (uses ApiService)
+   7. utils.js                     (Utils + _quillToolbar)
+   8. auth.js                      (Auth + global DOMContentLoaded)
+   9. @RenderSection("Scripts", required: false)   <- page script goes here
+
+
+=== ACT RULES ===
+You must act as 3 roles:
 
 1) Developer
 2) Code Reviewer

@@ -22,7 +22,9 @@
       "Bash(dotnet test ForumWebsite.Tests/ --filter \"Validator\" --no-build)",
       "Bash(taskkill /F /PID 19820)",
       "Bash(taskkill //F //PID 19820)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(dotnet build --no-restore -v q)",
+      "Bash(\"C:\\\\Users\\\\Admin\\\\.dotnet\\\\tools\\\\dotnet-ef\" migrations add AddPostIsClosed)"
     ]
   }
 }

@@ -43,6 +43,23 @@ namespace ForumWebsite.Data.Repositories.Implementations
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
+        public async Task<(IEnumerable<Post> Posts, int TotalCount)> GetPagedByUserAsync(
+            int userId, int page, int pageSize)
+        {
+            var query      = _dbSet.Where(p => p.UserId == userId && !p.IsDeleted);
+            var totalCount = await query.CountAsync();
+
+            var posts = await query
+                .Include(p => p.User)
+                .Include(p => p.Comments.Where(c => !c.IsDeleted))
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (posts, totalCount);
+        }
+
         /// <summary>
         /// Atomic single-statement increment — avoids the read-modify-write race
         /// condition where two concurrent requests both read ViewCount = N, both

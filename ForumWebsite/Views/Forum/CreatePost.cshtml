@@ -2,6 +2,15 @@
     ViewData["Title"] = "Tạo bài viết mới";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+    <script src="~/js/pages/create-post.js" asp-append-version="true"></script>
+}
+
 <!-- Guest prompt (shown by forum.js when not logged in) -->
 <div id="createPostLoginPrompt" class="d-none">
     <div class="forum-card p-5 text-center">

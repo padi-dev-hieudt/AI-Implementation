@@ -32,19 +32,70 @@ PHASE 1 FEATURES (MVP)
 - Secure password hashing
 - Role system (User, Admin)
 - Get user profile page
+- User profile summary view (/profile/{id}):
+  - Shows: username, role, joined date, total posts count
+  - Lists all posts by that user (title, view count, comment count, created date)
+  - Paginated post list (same pageSize as homepage)
+  - Accessible by anyone (public view)
+  - Post rows link to /post/{slug}/{id}
 
 2) Post System
 - Create post (title, content)
-- Edit post (only owner)
+- Edit post (only owner) — NOT admin
 - Delete post (owner or admin)
+- Close/reopen post (admin only) — toggles IsClosed; shown as badge on post title
 - Get post list (with pagination)
 - Get post detail by id
+- Post URL uses slug: /post/{slug}/{id} — slug computed from title client-side, id is authoritative
+  - Slug auto-corrects via history.replaceState if manually changed
+
+Button visibility rules (enforced in JS _renderPost):
+- Edit button:   owner only
+- Delete button: owner or admin
+- Close button:  admin only (label toggles "Đóng" / "Mở lại")
 
 3) Comment System
 - Add comment to post
 - Edit comment (only owner)
 - Delete comment (owner or admin)
 - Get comments by post
+
+4) View Count System (Discourse-style)
+- Count only "valid views", not every GET request
+- A valid view must:
+  - Come from a real browser (non-empty User-Agent, no bot patterns)
+  - Not repeat from the same user/session within a configurable time window
+- Implementation:
+  - IViewCountService.ShouldCount(postId, viewerKey, userAgent) → bool
+  - viewerKey: "u:{userId}" for authenticated, "g:{ip}" for guests
+  - Backed by IMemoryCache — one cache entry per (postId, viewerKey), TTL = window
+  - On ShouldCount=true: call PostService.IncrementViewCountAsync (atomic SQL UPDATE)
+  - Reflect new ViewCount in response DTO (post.ViewCount++) — no extra DB round-trip
+- Bot detection (User-Agent substring match, case-insensitive):
+  - Blocked: bot, crawl, spider, slurp, fetch, scan, python, curl, wget,
+             axios, java/, go-http, headless, phantom, selenium, puppeteer
+  - Empty/missing User-Agent → treated as bot
+- Config: appsettings.json "ViewCount": { "WindowMinutes": 10 }  (clamped 1–60)
+- No Redis required for Phase 1 (IMemoryCache is sufficient)
+- No per-user DB deduplication table needed for Phase 1
+- ViewCountService registered as Singleton (cache lives for the process lifetime)
+- PostService.GetPostByIdAsync no longer auto-increments;
+  increment only happens when PostController decides ShouldCount=true
+- Phase 2 upgrade path: swap IMemoryCache for IDistributedCache (Redis)
+  and add a batch-flush BackgroundService for write aggregation
+
+5) Responsive UI
+- All views must be fully responsive across:
+  - Mobile: 320px–480px (iPhone SE, iPhone 14, Samsung Galaxy)
+  - Tablet: 768px–1024px (iPad, iPad Pro)
+  - Desktop / Laptop: 1280px and above
+- Use Bootstrap 5 breakpoints (sm / md / lg / xl)
+- No horizontal scroll on any breakpoint
+- Touch-friendly tap targets (min 44px)
+- Navigation collapses to hamburger menu on mobile
+- Topic list columns (replies, views, activity) hidden on small screens (d-none d-md-block)
+- Post detail and comment forms stack vertically on mobile
+- Modals (login, register, edit post) must be usable on small screens
 
 =====================================
 DATABASE DESIGN

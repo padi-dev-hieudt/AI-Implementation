@@ -1,24 +1,7 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{2B3C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E}|ForumWebsite.Tests\\ForumWebsite.Tests.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite.tests\\forumwebsite.tests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{2B3C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E}|ForumWebsite.Tests\\ForumWebsite.Tests.csproj|solutionrelative:forumwebsite.tests\\forumwebsite.tests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\claude-act.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\claude-act.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\claude-rule.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\claude-rule.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-    }
-  ],
+  "WorkspaceRootPath": "H:\\paditech\\AI-Implementation\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -26,68 +9,35 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:130:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 800,
+          "SelectedChildIndex": -1,
+          "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ForumWebsite.Tests.csproj",
-              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
-              "RelativeDocumentMoniker": "ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
-              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
-              "RelativeToolTip": "ForumWebsite.Tests\\ForumWebsite.Tests.csproj",
-              "ViewState": "AgIAACEAAAAAAAAAAAAkwCgAAABGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-02-27T08:13:40.758Z",
-              "EditorCaption": ""
-            },
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 1080,
+          "SelectedChildIndex": -1,
+          "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\appsettings.json",
-              "RelativeDocumentMoniker": "ForumWebsite\\appsettings.json",
-              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\appsettings.json",
-              "RelativeToolTip": "ForumWebsite\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-27T03:08:49.527Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "claude-act.txt",
-              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\claude-act.txt",
-              "RelativeDocumentMoniker": "ForumWebsite\\claude-act.txt",
-              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\claude-act.txt",
-              "RelativeToolTip": "ForumWebsite\\claude-act.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2026-02-27T03:07:40.122Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "claude-rule.txt",
-              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\claude-rule.txt",
-              "RelativeDocumentMoniker": "ForumWebsite\\claude-rule.txt",
-              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\claude-rule.txt",
-              "RelativeToolTip": "ForumWebsite\\claude-rule.txt",
-              "ViewState": "AgIAAFUAAAAAAAAAAAAuwGYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2026-02-27T03:07:37.544Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{5a4e9529-b6a0-46b5-be4f-0f0b239bc0eb}"
             }
           ]
         }

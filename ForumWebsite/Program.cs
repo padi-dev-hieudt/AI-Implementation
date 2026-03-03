@@ -1,5 +1,8 @@
+using ForumWebsite.Data.Context;
+using ForumWebsite.Data.Seed;
 using ForumWebsite.Extensions;
 using ForumWebsite.Middleware;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,17 +33,34 @@ builder.Services.AddValidation();
 // ── AutoMapper ────────────────────────────────────────────────────────────────
 builder.Services.AddAutoMapperProfiles();
 
-// ── In-memory cache (used by RateLimitFilter) ─────────────────────────────────
+// ── In-memory cache (used by RateLimitFilter + ViewCountService) ──────────────
 builder.Services.AddMemoryCache();
 
 // ── HttpContext accessor ──────────────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
 
+// ── Forwarded headers (correct RemoteIpAddress behind nginx / IIS ARR) ────────
+// Without this, Connection.RemoteIpAddress is the proxy's loopback IP, making
+// all guest view-count keys identical and defeating per-client deduplication.
+//
+// Security note: KnownNetworks/KnownProxies are cleared to trust all upstream
+// proxies in Phase 1. For Phase 2 production, restrict to your proxy subnet:
+//   options.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("10.0.0.0"), 8));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();  // Phase 2: restrict to known proxy IPs/subnets
+    options.KnownProxies.Clear();
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Security headers — first so every response carries them ──────────────────
+// ── Forwarded headers — absolute first, before any middleware reads RemoteIpAddress ──
+app.UseForwardedHeaders();
+
+// ── Security headers — after forwarding so headers reflect the real origin ───
 app.UseMiddleware<SecurityHeadersMiddleware>();
 
 if (!app.Environment.IsDevelopment())
@@ -70,6 +90,14 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name:    "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// ── Seed fake data in Development ─────────────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DatabaseSeeder.SeedAsync(db);
+}
 
 app.Run();
 

@@ -14,11 +14,19 @@ namespace ForumWebsite.Controllers
         [HttpGet("post/create")]
         public IActionResult CreatePost() => View();
 
-        // GET /post/{id}
-        [HttpGet("post/{id:int}")]
-        public IActionResult PostDetail(int id)
+        // GET /post/{slug}/{id}  — slug is cosmetic (SEO/readability), id is authoritative
+        [HttpGet("post/{slug}/{id:int}")]
+        public IActionResult PostDetail(string slug, int id)
         {
             ViewBag.PostId = id;
+            return View();
+        }
+
+        // GET /profile/{id}
+        [HttpGet("profile/{id:int}")]
+        public IActionResult UserProfile(int id)
+        {
+            ViewBag.ProfileUserId = id;
             return View();
         }
     }

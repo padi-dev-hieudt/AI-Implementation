@@ -74,6 +74,9 @@ namespace ForumWebsite.Data.Context
                 entity.Property(e => e.IsDeleted)
                       .HasDefaultValue(false);
 
+                entity.Property(e => e.IsClosed)
+                      .HasDefaultValue(false);
+
                 entity.Property(e => e.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
 

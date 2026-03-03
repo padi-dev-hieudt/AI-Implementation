@@ -23,6 +23,9 @@ namespace ForumWebsite.Models.Entities
         // Soft-delete flag; filtered out in all queries
         public bool IsDeleted { get; set; } = false;
 
+        // Admin-only: prevents new comments when true
+        public bool IsClosed { get; set; } = false;
+
         // Navigation properties
         public virtual User User { get; set; } = null!;
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();

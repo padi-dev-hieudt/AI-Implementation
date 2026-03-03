@@ -15,6 +15,9 @@ namespace ForumWebsite.Data.Repositories.Interfaces
 
         Task<IEnumerable<Post>> GetByUserIdAsync(int userId);
 
+        /// <summary>Paged posts for a specific user — used by the profile page.</summary>
+        Task<(IEnumerable<Post> Posts, int TotalCount)> GetPagedByUserAsync(int userId, int page, int pageSize);
+
         /// <summary>
         /// Atomically increments ViewCount via a single UPDATE statement.
         /// Avoids the read-modify-write race condition that existed when using

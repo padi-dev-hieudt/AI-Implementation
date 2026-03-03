@@ -34,20 +34,32 @@ namespace ForumWebsite.Services.Implementations
             };
         }
 
+        public async Task<PagedResult<PostDto>> GetPostsByUserAsync(int userId, int page, int pageSize)
+        {
+            var (posts, totalCount) = await _postRepository.GetPagedByUserAsync(userId, page, pageSize);
+
+            return new PagedResult<PostDto>
+            {
+                Items      = _mapper.Map<IEnumerable<PostDto>>(posts),
+                Page       = page,
+                PageSize   = pageSize,
+                TotalCount = totalCount
+            };
+        }
+
         public async Task<PostDetailDto> GetPostByIdAsync(int id)
         {
             var post = await _postRepository.GetByIdWithDetailsAsync(id)
                 ?? throw new KeyNotFoundException($"Post {id} not found.");
 
-            // Atomic SQL UPDATE — eliminates the previous read-modify-write race
-            // condition where concurrent requests both saved ViewCount+1.
-            await _postRepository.IncrementViewCountAsync(id);
-
-            // Reflect the incremented value in the returned DTO without a second DB round-trip
-            post.ViewCount++;
-
+            // View counting is intentionally NOT done here.
+            // PostController calls IncrementViewCountAsync only when
+            // IViewCountService.ShouldCount returns true (non-bot, non-repeat within window).
             return _mapper.Map<PostDetailDto>(post);
         }
+
+        public async Task IncrementViewCountAsync(int postId) =>
+            await _postRepository.IncrementViewCountAsync(postId);
 
         public async Task<PostDetailDto> CreatePostAsync(int userId, CreatePostDto dto)
         {
@@ -76,7 +88,7 @@ namespace ForumWebsite.Services.Implementations
             if (post == null || post.IsDeleted)
                 throw new KeyNotFoundException($"Post {postId} not found.");
 
-            EnsureOwnerOrAdmin(post.UserId, requestingUserId, requestingUserRole, "edit");
+            EnsureOwner(post.UserId, requestingUserId, "edit");
 
             post.Title     = dto.Title.Trim();
             post.Content   = _sanitizer.Sanitize(dto.Content.Trim());
@@ -102,7 +114,31 @@ namespace ForumWebsite.Services.Implementations
             await _postRepository.UpdateAsync(post);
         }
 
+        public async Task<PostDto> ClosePostAsync(int postId, string requestingUserRole)
+        {
+            if (requestingUserRole != UserRoles.Admin)
+                throw new ForbiddenException("Only admins can close posts.");
+
+            var post = await _postRepository.GetByIdAsync(postId);
+
+            if (post == null || post.IsDeleted)
+                throw new KeyNotFoundException($"Post {postId} not found.");
+
+            post.IsClosed  = !post.IsClosed;   // toggle open ↔ closed
+            post.UpdatedAt = DateTime.UtcNow;
+            await _postRepository.UpdateAsync(post);
+
+            var updated = await _postRepository.GetByIdWithDetailsAsync(post.Id);
+            return _mapper.Map<PostDto>(updated!);
+        }
+
         // ── Private helpers ────────────────────────────────────────────────────
+
+        private static void EnsureOwner(int ownerId, int requestingUserId, string action)
+        {
+            if (ownerId != requestingUserId)
+                throw new ForbiddenException($"Only the post owner can {action} this post.");
+        }
 
         private static void EnsureOwnerOrAdmin(
             int ownerId, int requestingUserId, string requestingUserRole, string action)
