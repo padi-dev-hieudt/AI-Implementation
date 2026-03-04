@@ -2,7 +2,7 @@
 # Visual Studio
 #####################################
 
-.vs/
+*.vs
 *.suo
 *.user
 *.userosscache

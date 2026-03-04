@@ -1,0 +1,100 @@
+﻿#####################################
+# Visual Studio
+#####################################
+
+*.vs
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+#####################################
+# Build results
+#####################################
+
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+artifacts/
+
+#####################################
+# .NET Core / .NET 5+ / .NET 6+
+#####################################
+
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+#####################################
+# Logs
+#####################################
+
+*.log
+logs/
+**/logs/
+
+#####################################
+# Test Results
+#####################################
+
+TestResults/
+[Tt]est[Rr]esult*/
+
+#####################################
+# NuGet
+#####################################
+
+packages/
+*.nupkg
+*.snupkg
+.nuget/
+
+# Keep this if using packages.config
+!packages/repositories.config
+
+#####################################
+# Rider / ReSharper
+#####################################
+
+_ReSharper*/
+*.DotSettings.user
+
+#####################################
+# Publish
+#####################################
+
+publish/
+*.Publish.xml
+*.pubxml
+*.azurePubxml
+
+#####################################
+# SQL Server files
+#####################################
+
+App_Data/*.mdf
+App_Data/*.ldf
+
+#####################################
+# OS files
+#####################################
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+#####################################
+# Others
+#####################################
+
+*.cache
+*.pdb
+*.aps
+*.ncb
+*.opendb
+*.VC.db
