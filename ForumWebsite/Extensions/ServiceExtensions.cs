@@ -44,9 +44,11 @@ namespace ForumWebsite.Extensions
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IUserRepository,    UserRepository>();
-            services.AddScoped<IPostRepository,    PostRepository>();
-            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<IUserRepository,     UserRepository>();
+            services.AddScoped<IPostRepository,     PostRepository>();
+            services.AddScoped<ICommentRepository,  CommentRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ITagRepository,      TagRepository>();
             return services;
         }
 
@@ -57,10 +59,12 @@ namespace ForumWebsite.Extensions
             // Singleton: ViewCountService uses IMemoryCache; its in-process state (dedupe entries)
             // must live across requests, so Singleton lifetime is required.
             services.AddSingleton<IViewCountService, ViewCountService>();
-            services.AddScoped<IJwtService,     JwtService>();
-            services.AddScoped<IUserService,    UserService>();
-            services.AddScoped<IPostService,    PostService>();
-            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IJwtService,       JwtService>();
+            services.AddScoped<IUserService,      UserService>();
+            services.AddScoped<IPostService,      PostService>();
+            services.AddScoped<ICommentService,   CommentService>();
+            services.AddScoped<ICategoryService,  CategoryService>();
+            services.AddScoped<ITagService,       TagService>();
             return services;
         }
 

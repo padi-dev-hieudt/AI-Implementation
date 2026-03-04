@@ -13,12 +13,19 @@ namespace ForumWebsite.Tests.Services;
 
 public class PostServiceTests
 {
-    private readonly Mock<IPostRepository> _postRepoMock = new();
+    private readonly Mock<IPostRepository>     _postRepoMock     = new();
+    private readonly Mock<ICategoryRepository> _categoryRepoMock = new();
+    private readonly Mock<ITagRepository>      _tagRepoMock      = new();
     // Use the real AutoMapper profile — tests the mapping contract too
     private readonly IMapper _mapper =
         new MapperConfiguration(c => c.AddProfile<AutoMapperProfile>()).CreateMapper();
 
-    private PostService CreateSut() => new(_postRepoMock.Object, _mapper, new Ganss.Xss.HtmlSanitizer());
+    private PostService CreateSut() => new(
+        _postRepoMock.Object,
+        _categoryRepoMock.Object,
+        _tagRepoMock.Object,
+        _mapper,
+        new Ganss.Xss.HtmlSanitizer());
 
     // ── GetPostsAsync ─────────────────────────────────────────────────────────
 
@@ -87,23 +94,24 @@ public class PostServiceTests
     // ── GetPostByIdAsync ──────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GetPostByIdAsync_ExistingPost_ReturnsDetailDtoAndIncrementsView()
+    public async Task GetPostByIdAsync_ExistingPost_ReturnsDetailDto()
     {
+        // Phase 1 spec: "PostService.GetPostByIdAsync no longer auto-increments;
+        // increment only happens when PostController decides ShouldCount=true."
         var user    = TestDataFactory.CreateUser();
         var post    = TestDataFactory.CreatePost(id: 42, user: user, viewCount: 5);
         var comment = TestDataFactory.CreateComment(post: post, user: user);
         post.Comments.Add(comment);
 
         _postRepoMock.Setup(r => r.GetByIdWithDetailsAsync(42)).ReturnsAsync(post);
-        _postRepoMock.Setup(r => r.IncrementViewCountAsync(42, default)).Returns(Task.CompletedTask);
 
         var result = await CreateSut().GetPostByIdAsync(42);
 
         result.Id          .Should().Be(42);
-        result.ViewCount   .Should().Be(6);   // incremented in service (+1 optimistic)
+        result.ViewCount   .Should().Be(5);   // unchanged — controller handles increment separately
         result.CommentCount.Should().Be(1);
 
-        _postRepoMock.Verify(r => r.IncrementViewCountAsync(42, default), Times.Once);
+        _postRepoMock.Verify(r => r.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -121,9 +129,13 @@ public class PostServiceTests
     [Fact]
     public async Task CreatePostAsync_ValidDto_CreatesAndReturnsPost()
     {
-        var user = TestDataFactory.CreateUser(id: 3);
-        var post = TestDataFactory.CreatePost(id: 10, user: user);
+        var user     = TestDataFactory.CreateUser(id: 3);
+        var category = new Category { Id = 1, Name = "Uncategorized", IsDefault = true };
+        var post     = TestDataFactory.CreatePost(id: 10, user: user);
 
+        _categoryRepoMock.Setup(r => r.GetDefaultAsync()).ReturnsAsync(category);
+        _tagRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                    .ReturnsAsync(new List<Tag>());
         _postRepoMock.Setup(r => r.CreateAsync(It.IsAny<Post>()))
                      .ReturnsAsync((Post p) => { p.Id = 10; return p; });
         _postRepoMock.Setup(r => r.GetByIdWithDetailsAsync(10)).ReturnsAsync(post);
@@ -149,7 +161,7 @@ public class PostServiceTests
         var updated = TestDataFactory.CreatePost(id: 20, user: user,
             title: "New Title", content: "New content");
 
-        _postRepoMock.Setup(r => r.GetByIdAsync(20))              .ReturnsAsync(post);
+        _postRepoMock.Setup(r => r.GetByIdWithTagsAsync(20))       .ReturnsAsync(post);
         _postRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Post>())) .ReturnsAsync((Post p) => p);
         _postRepoMock.Setup(r => r.GetByIdWithDetailsAsync(20))   .ReturnsAsync(updated);
 
@@ -161,22 +173,22 @@ public class PostServiceTests
     }
 
     [Fact]
-    public async Task UpdatePostAsync_Admin_UpdatesOtherUsersPost()
+    public async Task UpdatePostAsync_Admin_ThrowsForbiddenException()
     {
+        // Phase 1 spec: "Edit post (only owner) — NOT admin"
+        // Admins can delete and close posts, but only the owner may edit.
         var owner = TestDataFactory.CreateUser(id: 1);
         var post  = TestDataFactory.CreatePost(id: 30, user: owner);
-        var updated = TestDataFactory.CreatePost(id: 30, user: owner);
 
-        _postRepoMock.Setup(r => r.GetByIdAsync(30))              .ReturnsAsync(post);
-        _postRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Post>())) .ReturnsAsync((Post p) => p);
-        _postRepoMock.Setup(r => r.GetByIdWithDetailsAsync(30))   .ReturnsAsync(updated);
+        _postRepoMock.Setup(r => r.GetByIdWithTagsAsync(30)).ReturnsAsync(post);
 
         var dto = new UpdatePostDto { Title = "Admin Edit", Content = "Admin content" };
-        // Admin user (id: 99, role: Admin) updating post owned by user id 1
-        var result = await CreateSut().UpdatePostAsync(
-            postId: 30, requestingUserId: 99, requestingUserRole: UserRoles.Admin, dto: dto);
-
-        result.Should().NotBeNull();
+        // Admin user (id: 99, role: Admin) attempting to edit post owned by user id 1
+        await CreateSut().Invoking(s =>
+                s.UpdatePostAsync(postId: 30, requestingUserId: 99,
+                    requestingUserRole: UserRoles.Admin, dto: dto))
+            .Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("*owner*");
     }
 
     [Fact]
@@ -185,14 +197,14 @@ public class PostServiceTests
         var owner = TestDataFactory.CreateUser(id: 1);
         var post  = TestDataFactory.CreatePost(id: 40, user: owner);
 
-        _postRepoMock.Setup(r => r.GetByIdAsync(40)).ReturnsAsync(post);
+        _postRepoMock.Setup(r => r.GetByIdWithTagsAsync(40)).ReturnsAsync(post);
 
         var dto = new UpdatePostDto { Title = "Hijack", Content = "Hijacked" };
         await CreateSut().Invoking(s =>
                 s.UpdatePostAsync(postId: 40, requestingUserId: 99,
                     requestingUserRole: UserRoles.User, dto: dto))
             .Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("*permission*");
+            .WithMessage("*owner*");
     }
 
     [Fact]

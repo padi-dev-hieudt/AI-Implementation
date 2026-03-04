@@ -60,6 +60,29 @@ Button visibility rules (enforced in JS _renderPost):
 - Delete comment (owner or admin)
 - Get comments by post
 
+3a) Category System
+- Every post must belong to exactly one category
+- Default category "Uncategorized" seeded with IsDefault=true
+- Seeded categories (in order): Uncategorized, General, Q&A, Tutorial, Announcement
+- Admin CRUD: create, update, delete categories
+  - Cannot delete the default category (IsDefault=true)
+  - Cannot delete a category that still has posts (FK Restrict)
+  - SortOrder field for display ordering
+- Public: GET /api/categories (list), GET /api/categories/{id}
+- Post.CategoryId is required; CreatePostDto.CategoryId=0 resolves to the default category
+
+3b) Tag System
+- One post can have zero to many tags (max 5 tags per post)
+- Tags are simple Name-only entities (no slug) — unique name, case-insensitive
+- Admin CRUD: create, update, delete tags
+  - Deleting a tag cascades to PostTags join rows (posts keep the rest of their tags)
+- Public: GET /api/tags (list), GET /api/tags/{id}
+- Post owner assigns tags by ID when creating/editing a post
+  - CreatePostDto.TagIds (optional list of existing tag IDs)
+  - UpdatePostDto.TagIds: null = keep current tags; empty list = clear all tags
+- EF Core many-to-many via implicit PostTags join table
+- PostDto and PostDetailDto include List<TagDto> Tags and CategoryName
+
 4) View Count System (Discourse-style)
 - Count only "valid views", not every GET request
 - A valid view must:

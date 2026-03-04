@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\migrations\\20260304110843_up2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\migrations\\20260304110843_up2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\data\\seed\\databaseseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\data\\seed\\databaseseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\work-tracking\\ai-implementation\\ai-implementation\\forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,14 +39,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Program.cs",
-              "RelativeDocumentMoniker": "ForumWebsite\\Program.cs",
-              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Program.cs",
-              "RelativeToolTip": "ForumWebsite\\Program.cs",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "20260304110843_Up2.cs",
+              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Migrations\\20260304110843_Up2.cs",
+              "RelativeDocumentMoniker": "ForumWebsite\\Migrations\\20260304110843_Up2.cs",
+              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Migrations\\20260304110843_Up2.cs",
+              "RelativeToolTip": "ForumWebsite\\Migrations\\20260304110843_Up2.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T18:26:18.419Z",
+              "WhenOpened": "2026-03-04T11:08:44.68Z",
               "EditorCaption": ""
             },
             {
@@ -53,9 +57,23 @@
               "RelativeDocumentMoniker": "ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
               "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
               "RelativeToolTip": "ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAgwBUAAABDAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAADAAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T18:25:48.743Z"
+              "WhenOpened": "2026-03-04T10:29:38.44Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Program.cs",
+              "RelativeDocumentMoniker": "ForumWebsite\\Program.cs",
+              "ToolTip": "H:\\work-tracking\\AI-Implementation\\AI-Implementation\\ForumWebsite\\Program.cs",
+              "RelativeToolTip": "ForumWebsite\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T10:27:43.963Z",
+              "EditorCaption": ""
             }
           ]
         }

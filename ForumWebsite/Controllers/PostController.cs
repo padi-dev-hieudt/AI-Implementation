@@ -59,12 +59,16 @@ namespace ForumWebsite.Controllers
             var post = await _postService.GetPostByIdAsync(id);
 
             // ── Sec-Fetch guard: skip browser speculation / link-hover prefetch ──
-            // Modern browsers send Sec-Fetch-Mode=prefetch or Sec-Fetch-Dest=empty
-            // for background loads that are NOT genuine user-initiated page views.
+            // Sec-Fetch-Mode=prefetch  → Chrome Speculation Rules API background prefetch.
+            // Purpose=prefetch         → older RFC 8297 / Firefox / Safari prefetch header.
+            //
+            // NOTE: Sec-Fetch-Dest=empty is NOT a prefetch signal — it means a JS
+            // fetch()/XHR request, which IS a genuine user-initiated view.  Using it
+            // as a prefetch guard blocks every API call from the forum's JS frontend.
             var secFetchMode = Request.Headers["Sec-Fetch-Mode"].ToString();
-            var secFetchDest = Request.Headers["Sec-Fetch-Dest"].ToString();
+            var purpose      = Request.Headers["Purpose"].ToString();
             bool isPrefetch  = secFetchMode.Equals("prefetch", StringComparison.OrdinalIgnoreCase)
-                            || secFetchDest.Equals("empty",    StringComparison.OrdinalIgnoreCase);
+                            || purpose.Equals("prefetch",      StringComparison.OrdinalIgnoreCase);
 
             if (!isPrefetch)
             {

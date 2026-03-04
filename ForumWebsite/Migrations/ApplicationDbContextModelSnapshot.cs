@@ -22,6 +22,48 @@ namespace ForumWebsite.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("ForumWebsite.Models.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Categories_Name");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("ForumWebsite.Models.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -73,6 +115,9 @@ namespace ForumWebsite.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -110,6 +155,9 @@ namespace ForumWebsite.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("IX_Posts_CategoryId");
+
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("IX_Posts_CreatedAt");
 
@@ -120,6 +168,33 @@ namespace ForumWebsite.Migrations
                         .HasDatabaseName("IX_Posts_UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("ForumWebsite.Models.Entities.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Tags_Name");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("ForumWebsite.Models.Entities.User", b =>
@@ -175,6 +250,22 @@ namespace ForumWebsite.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("PostTag", b =>
+                {
+                    b.Property<int>("PostsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostsId", "TagsId");
+
+                    b.HasIndex("TagsId")
+                        .HasDatabaseName("IX_PostTags_TagId");
+
+                    b.ToTable("PostTags", (string)null);
+                });
+
             modelBuilder.Entity("ForumWebsite.Models.Entities.Comment", b =>
                 {
                     b.HasOne("ForumWebsite.Models.Entities.Post", "Post")
@@ -196,13 +287,41 @@ namespace ForumWebsite.Migrations
 
             modelBuilder.Entity("ForumWebsite.Models.Entities.Post", b =>
                 {
+                    b.HasOne("ForumWebsite.Models.Entities.Category", "Category")
+                        .WithMany("Posts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("ForumWebsite.Models.Entities.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Category");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PostTag", b =>
+                {
+                    b.HasOne("ForumWebsite.Models.Entities.Post", null)
+                        .WithMany()
+                        .HasForeignKey("PostsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ForumWebsite.Models.Entities.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ForumWebsite.Models.Entities.Category", b =>
+                {
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("ForumWebsite.Models.Entities.Post", b =>

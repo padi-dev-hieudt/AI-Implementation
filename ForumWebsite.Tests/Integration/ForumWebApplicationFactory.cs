@@ -89,16 +89,29 @@ public class ForumWebApplicationFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Development");
     }
 
-    /// <summary>Creates the in-memory schema once after the host is built.</summary>
+    /// <summary>
+    /// Creates the in-memory schema BEFORE the host starts.
+    ///
+    /// Order matters: Program.cs calls DatabaseSeeder.SeedAsync during startup,
+    /// which queries db.Posts.Any(). If EnsureCreated runs after Start() the
+    /// seeder hits "no such table: Posts".  Building without starting first lets
+    /// us create the schema while the host is still idle.
+    /// </summary>
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        var host = base.CreateHost(builder);
+        // 1. Build the host (applies ConfigureTestServices overrides) but don't start yet.
+        var host = builder.Build();
 
-        using var scope = host.Services.CreateScope();
-        scope.ServiceProvider
-             .GetRequiredService<ApplicationDbContext>()
-             .Database.EnsureCreated();
+        // 2. Create SQLite schema before any startup code (seeder) runs.
+        using (var scope = host.Services.CreateScope())
+        {
+            scope.ServiceProvider
+                 .GetRequiredService<ApplicationDbContext>()
+                 .Database.EnsureCreated();
+        }
 
+        // 3. Now start — Program.cs seeder runs and finds tables already created.
+        host.Start();
         return host;
     }
 

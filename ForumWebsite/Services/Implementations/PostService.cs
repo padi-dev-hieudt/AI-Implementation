@@ -10,15 +10,26 @@ namespace ForumWebsite.Services.Implementations
 {
     public class PostService : IPostService
     {
-        private readonly IPostRepository _postRepository;
-        private readonly IMapper         _mapper;
-        private readonly HtmlSanitizer   _sanitizer;
+        private const int MaxTagsPerPost = 5;
 
-        public PostService(IPostRepository postRepository, IMapper mapper, HtmlSanitizer sanitizer)
+        private readonly IPostRepository     _postRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly ITagRepository      _tagRepository;
+        private readonly IMapper             _mapper;
+        private readonly HtmlSanitizer       _sanitizer;
+
+        public PostService(
+            IPostRepository     postRepository,
+            ICategoryRepository categoryRepository,
+            ITagRepository      tagRepository,
+            IMapper             mapper,
+            HtmlSanitizer       sanitizer)
         {
-            _postRepository = postRepository;
-            _mapper         = mapper;
-            _sanitizer      = sanitizer;
+            _postRepository     = postRepository;
+            _categoryRepository = categoryRepository;
+            _tagRepository      = tagRepository;
+            _mapper             = mapper;
+            _sanitizer          = sanitizer;
         }
 
         public async Task<PagedResult<PostDto>> GetPostsAsync(int page, int pageSize)
@@ -63,19 +74,30 @@ namespace ForumWebsite.Services.Implementations
 
         public async Task<PostDetailDto> CreatePostAsync(int userId, CreatePostDto dto)
         {
+            // Resolve category: 0 = use default, otherwise validate it exists
+            var category = dto.CategoryId > 0
+                ? await _categoryRepository.GetByIdAsync(dto.CategoryId)
+                    ?? throw new BusinessRuleException($"Category {dto.CategoryId} not found.")
+                : await _categoryRepository.GetDefaultAsync();
+
+            // Validate and load tags
+            var tags = await ResolveTagsAsync(dto.TagIds);
+
             var post = new Post
             {
-                Title     = dto.Title.Trim(),
-                Content   = _sanitizer.Sanitize(dto.Content.Trim()),
-                UserId    = userId,
-                CreatedAt = DateTime.UtcNow
+                Title      = dto.Title.Trim(),
+                Content    = _sanitizer.Sanitize(dto.Content.Trim()),
+                UserId     = userId,
+                CategoryId = category.Id,
+                CreatedAt  = DateTime.UtcNow
             };
+
+            // Add tracked Tag entities so EF creates the PostTags join rows on SaveChanges
+            foreach (var tag in tags) post.Tags.Add(tag);
 
             await _postRepository.CreateAsync(post);
 
-            // Reload to pick up the User navigation property needed for mapping.
-            // One extra query is acceptable on write paths; avoids a null-ref in AutoMapper.
-            // Return PostDetailDto (includes empty Comments list) — richer response for the creator.
+            // Reload to pick up navigation properties needed for mapping
             var created = await _postRepository.GetByIdWithDetailsAsync(post.Id);
             return _mapper.Map<PostDetailDto>(created!);
         }
@@ -83,7 +105,8 @@ namespace ForumWebsite.Services.Implementations
         public async Task<PostDto> UpdatePostAsync(
             int postId, int requestingUserId, string requestingUserRole, UpdatePostDto dto)
         {
-            var post = await _postRepository.GetByIdAsync(postId);
+            // Load with Tags so EF can track collection mutations (add/remove from PostTags)
+            var post = await _postRepository.GetByIdWithTagsAsync(postId);
 
             if (post == null || post.IsDeleted)
                 throw new KeyNotFoundException($"Post {postId} not found.");
@@ -93,6 +116,23 @@ namespace ForumWebsite.Services.Implementations
             post.Title     = dto.Title.Trim();
             post.Content   = _sanitizer.Sanitize(dto.Content.Trim());
             post.UpdatedAt = DateTime.UtcNow;
+
+            // Update category if a new one is requested
+            if (dto.CategoryId > 0 && dto.CategoryId != post.CategoryId)
+            {
+                var exists = await _categoryRepository.GetByIdAsync(dto.CategoryId);
+                if (exists == null)
+                    throw new BusinessRuleException($"Category {dto.CategoryId} not found.");
+                post.CategoryId = dto.CategoryId;
+            }
+
+            // Update tags if a new list is supplied (null = keep current)
+            if (dto.TagIds != null)
+            {
+                var newTags = await ResolveTagsAsync(dto.TagIds);
+                post.Tags.Clear();
+                foreach (var tag in newTags) post.Tags.Add(tag);
+            }
 
             await _postRepository.UpdateAsync(post);
 
@@ -134,6 +174,32 @@ namespace ForumWebsite.Services.Implementations
 
         // ── Private helpers ────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Validates tag IDs and returns the tracked Tag entities.
+        /// Enforces the max-5-tags-per-post limit.
+        /// </summary>
+        private async Task<IEnumerable<Tag>> ResolveTagsAsync(IEnumerable<int>? tagIds)
+        {
+            if (tagIds == null || !tagIds.Any())
+                return Enumerable.Empty<Tag>();
+
+            var ids = tagIds.Distinct().ToList();
+
+            if (ids.Count > MaxTagsPerPost)
+                throw new BusinessRuleException($"A post can have at most {MaxTagsPerPost} tags.");
+
+            var tags = (await _tagRepository.GetByIdsAsync(ids)).ToList();
+
+            if (tags.Count != ids.Count)
+            {
+                var missing = ids.Except(tags.Select(t => t.Id));
+                throw new BusinessRuleException(
+                    $"Tag(s) not found: {string.Join(", ", missing)}.");
+            }
+
+            return tags;
+        }
+
         private static void EnsureOwner(int ownerId, int requestingUserId, string action)
         {
             if (ownerId != requestingUserId)
@@ -145,7 +211,7 @@ namespace ForumWebsite.Services.Implementations
         {
             if (ownerId != requestingUserId && requestingUserRole != UserRoles.Admin)
                 throw new ForbiddenException(
-                    $"You do not have permission to {action} this post."); // → 403
+                    $"You do not have permission to {action} this post.");
         }
     }
 }

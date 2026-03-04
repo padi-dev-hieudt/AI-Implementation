@@ -1,6 +1,8 @@
 using AutoMapper;
+using ForumWebsite.Models.DTOs.Category;
 using ForumWebsite.Models.DTOs.Comment;
 using ForumWebsite.Models.DTOs.Post;
+using ForumWebsite.Models.DTOs.Tag;
 using ForumWebsite.Models.Entities;
 
 namespace ForumWebsite.Mappings
@@ -9,21 +11,36 @@ namespace ForumWebsite.Mappings
     {
         public AutoMapperProfile()
         {
+            // ─── Category → CategoryDto ───────────────────────────────────────────
+            CreateMap<Category, CategoryDto>()
+                .ForMember(d => d.PostCount,
+                    opt => opt.MapFrom(s => s.Posts.Count(p => !p.IsDeleted)));
+
+            // ─── Tag → TagDto ─────────────────────────────────────────────────────
+            // Posts is only populated when explicitly included; otherwise Count() = 0.
+            CreateMap<Tag, TagDto>()
+                .ForMember(d => d.PostCount,
+                    opt => opt.MapFrom(s => s.Posts.Count(p => !p.IsDeleted)));
+
             // ─── Post → PostDto ───────────────────────────────────────────────────
-            // Username is denormalised from the User navigation property.
-            // CommentCount counts only non-deleted comments in the loaded collection.
             CreateMap<Post, PostDto>()
                 .ForMember(d => d.Username,
                     opt => opt.MapFrom(s => s.User != null ? s.User.Username : string.Empty))
+                .ForMember(d => d.CategoryName,
+                    opt => opt.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
+                .ForMember(d => d.Tags,
+                    opt => opt.MapFrom(s => s.Tags))
                 .ForMember(d => d.CommentCount,
                     opt => opt.MapFrom(s => s.Comments.Count(c => !c.IsDeleted)));
 
             // ─── Post → PostDetailDto ─────────────────────────────────────────────
-            // Inherits the base mappings above and additionally maps the Comments list.
-            // AutoMapper will use the Comment → CommentDto map for items in the list.
             CreateMap<Post, PostDetailDto>()
                 .ForMember(d => d.Username,
                     opt => opt.MapFrom(s => s.User != null ? s.User.Username : string.Empty))
+                .ForMember(d => d.CategoryName,
+                    opt => opt.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
+                .ForMember(d => d.Tags,
+                    opt => opt.MapFrom(s => s.Tags))
                 .ForMember(d => d.CommentCount,
                     opt => opt.MapFrom(s => s.Comments.Count(c => !c.IsDeleted)))
                 .ForMember(d => d.Comments,

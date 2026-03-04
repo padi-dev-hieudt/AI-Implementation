@@ -60,7 +60,7 @@ namespace RBAC_WPF_2026.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/RBAC-WPF-2026;V1.0.0.0;component/views/permissionmanagementview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/RBAC-WPF-2026;component/views/permissionmanagementview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\PermissionManagementView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

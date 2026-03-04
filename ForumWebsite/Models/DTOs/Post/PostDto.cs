@@ -1,3 +1,5 @@
+using ForumWebsite.Models.DTOs.Tag;
+
 namespace ForumWebsite.Models.DTOs.Post
 {
     /// <summary>Lightweight post summary used in list views.</summary>
@@ -8,10 +10,13 @@ namespace ForumWebsite.Models.DTOs.Post
         public string    Content      { get; set; } = string.Empty;
         public int       UserId       { get; set; }
         public string    Username     { get; set; } = string.Empty;   // denormalised from User
+        public int       CategoryId   { get; set; }
+        public string    CategoryName { get; set; } = string.Empty;   // denormalised from Category
         public int       ViewCount    { get; set; }
         public int       CommentCount { get; set; }
         public DateTime  CreatedAt    { get; set; }
         public DateTime? UpdatedAt    { get; set; }
         public bool      IsClosed     { get; set; }
+        public List<TagDto> Tags      { get; set; } = new();
     }
 }

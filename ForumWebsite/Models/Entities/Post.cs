@@ -26,8 +26,15 @@ namespace ForumWebsite.Models.Entities
         // Admin-only: prevents new comments when true
         public bool IsClosed { get; set; } = false;
 
+        // Category FK — required; defaults to the "Uncategorized" category
+        public int      CategoryId { get; set; }
+        public virtual Category Category { get; set; } = null!;
+
         // Navigation properties
         public virtual User User { get; set; } = null!;
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+        // Tags — zero to many; EF Core manages the PostTags join table
+        public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
     }
 }

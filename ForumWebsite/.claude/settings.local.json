@@ -24,7 +24,12 @@
       "Bash(taskkill //F //PID 19820)",
       "Bash(echo \"exit: $?\")",
       "Bash(dotnet build --no-restore -v q)",
-      "Bash(\"C:\\\\Users\\\\Admin\\\\.dotnet\\\\tools\\\\dotnet-ef\" migrations add AddPostIsClosed)"
+      "Bash(\"C:\\\\Users\\\\Admin\\\\.dotnet\\\\tools\\\\dotnet-ef\" migrations add AddPostIsClosed)",
+      "Bash(dotnet test --no-build)",
+      "Bash(dotnet build ForumWebsite/ForumWebsite.csproj --no-restore -v quiet)",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj --no-build -v normal)",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj)",
+      "Bash(dotnet test ForumWebsite.Tests/ForumWebsite.Tests.csproj --filter \"PostServiceTests\")"
     ]
   }
 }

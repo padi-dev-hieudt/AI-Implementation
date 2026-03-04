@@ -19,6 +19,12 @@ namespace ForumWebsite.Data.Repositories.Interfaces
         Task<(IEnumerable<Post> Posts, int TotalCount)> GetPagedByUserAsync(int userId, int page, int pageSize);
 
         /// <summary>
+        /// Loads a post with its Tags collection only (tracked, no comments/user).
+        /// Used by UpdatePostAsync to mutate the many-to-many tag collection.
+        /// </summary>
+        Task<Post?> GetByIdWithTagsAsync(int id);
+
+        /// <summary>
         /// Atomically increments ViewCount via a single UPDATE statement.
         /// Avoids the read-modify-write race condition that existed when using
         /// GetByIdAsync → post.ViewCount++ → UpdateAsync under concurrent requests.

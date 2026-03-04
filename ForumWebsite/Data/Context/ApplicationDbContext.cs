@@ -12,9 +12,11 @@ namespace ForumWebsite.Data.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        public DbSet<User>    Users    { get; set; } = null!;
-        public DbSet<Post>    Posts    { get; set; } = null!;
-        public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<User>     Users      { get; set; } = null!;
+        public DbSet<Post>     Posts      { get; set; } = null!;
+        public DbSet<Comment>  Comments   { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Tag>      Tags       { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +58,45 @@ namespace ForumWebsite.Data.Context
                 entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("UX_Users_Email");
             });
 
+            // ─── Category ─────────────────────────────────────────────────────────
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Name)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.Description)
+                      .HasMaxLength(500);
+
+                entity.Property(e => e.IsDefault)
+                      .HasDefaultValue(false);
+
+                entity.Property(e => e.SortOrder)
+                      .HasDefaultValue(0);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("UX_Categories_Name");
+            });
+
+            // ─── Tag ──────────────────────────────────────────────────────────────
+            modelBuilder.Entity<Tag>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Name)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("UX_Tags_Name");
+            });
+
             // ─── Post ─────────────────────────────────────────────────────────────
             modelBuilder.Entity<Post>(entity =>
             {
@@ -86,8 +127,26 @@ namespace ForumWebsite.Data.Context
                       .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
+                // Restrict: cannot delete a category that still has posts
+                entity.HasOne(e => e.Category)
+                      .WithMany(c => c.Posts)
+                      .HasForeignKey(e => e.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Many-to-many Post ↔ Tag via implicit PostTags join table.
+                // The join table column names EF generates are PostsId/TagsId —
+                // we index TagsId so "posts by tag" queries hit an index, not a scan.
+                entity.HasMany(e => e.Tags)
+                      .WithMany(t => t.Posts)
+                      .UsingEntity(j =>
+                      {
+                          j.ToTable("PostTags");
+                          j.HasIndex("TagsId").HasDatabaseName("IX_PostTags_TagId");
+                      });
+
                 // Indexes to speed up common list/filter queries
                 entity.HasIndex(e => e.UserId).HasDatabaseName("IX_Posts_UserId");
+                entity.HasIndex(e => e.CategoryId).HasDatabaseName("IX_Posts_CategoryId");
                 entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_Posts_CreatedAt");
                 entity.HasIndex(e => e.IsDeleted).HasDatabaseName("IX_Posts_IsDeleted");
             });
