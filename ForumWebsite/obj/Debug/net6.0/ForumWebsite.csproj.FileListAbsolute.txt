@@ -251,3 +251,4 @@ H:\work-tracking\AI-Implementation\AI-Implementation\ForumWebsite\obj\Debug\net6
 H:\work-tracking\AI-Implementation\AI-Implementation\ForumWebsite\obj\Debug\net6.0\ForumWebsite.pdb
 H:\work-tracking\AI-Implementation\AI-Implementation\ForumWebsite\obj\Debug\net6.0\ForumWebsite.genruntimeconfig.cache
 H:\work-tracking\AI-Implementation\AI-Implementation\ForumWebsite\obj\Debug\net6.0\ref\ForumWebsite.dll
+H:\work-tracking\AI-Implementation\AI-Implementation\ForumWebsite\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt

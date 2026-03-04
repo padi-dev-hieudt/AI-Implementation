@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "H:\\paditech\\AI-Implementation\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\paditech\\ai-implementation\\forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|h:\\paditech\\ai-implementation\\forumwebsite\\data\\seed\\databaseseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{051AD755-8286-49C6-A1CE-9D844C4D6B95}|ForumWebsite\\ForumWebsite.csproj|solutionrelative:forumwebsite\\data\\seed\\databaseseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +18,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "H:\\paditech\\AI-Implementation\\ForumWebsite\\Program.cs",
+              "RelativeDocumentMoniker": "ForumWebsite\\Program.cs",
+              "ToolTip": "H:\\paditech\\AI-Implementation\\ForumWebsite\\Program.cs",
+              "RelativeToolTip": "ForumWebsite\\Program.cs",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T18:26:18.419Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DatabaseSeeder.cs",
+              "DocumentMoniker": "H:\\paditech\\AI-Implementation\\ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
+              "RelativeDocumentMoniker": "ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
+              "ToolTip": "H:\\paditech\\AI-Implementation\\ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
+              "RelativeToolTip": "ForumWebsite\\Data\\Seed\\DatabaseSeeder.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwBUAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T18:25:48.743Z",
+              "EditorCaption": ""
             }
           ]
         },
