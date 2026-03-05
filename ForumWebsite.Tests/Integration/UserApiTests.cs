@@ -12,7 +12,8 @@ namespace ForumWebsite.Tests.Integration;
 /// (and therefore a single SQLite in-memory database) via IClassFixture.
 /// Each test creates users with unique suffixes to avoid cross-test conflicts.
 /// </summary>
-public class UserApiTests : IClassFixture<ForumWebApplicationFactory>
+[Collection(IntegrationTestCollection.Name)]
+public class UserApiTests
 {
     private readonly ForumWebApplicationFactory _factory;
 

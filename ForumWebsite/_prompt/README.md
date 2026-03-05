@@ -1,0 +1,4 @@
+﻿- Project rule file: project_rules.txt
+- Claude act: claude_act.txt
+- Proejct phase: /phase/project_phase.txt
+- Current phase: phase_01.txt

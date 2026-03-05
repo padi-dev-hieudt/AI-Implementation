@@ -38,5 +38,16 @@ namespace ForumWebsite.Data.Repositories.Implementations
 
             return (postCount, commentCount);
         }
+
+        public async Task<(IEnumerable<User> Users, int TotalCount)> GetAllPagedAsync(int page, int pageSize)
+        {
+            var query = _dbSet.OrderByDescending(u => u.CreatedAt);
+            int total = await query.CountAsync();
+            var users = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (users, total);
+        }
     }
 }

@@ -154,9 +154,13 @@ const PostDetail = (() => {
     }
 
     function _renderComment(comment) {
-        const avatar  = Utils.avatarHtml(comment.username, 'comment-avatar');
-        const canEdit = Auth.user && (Auth.user.id === comment.userId || Auth.user.role === 'Admin');
-        const edited  = comment.updatedAt
+        const avatar    = Utils.avatarHtml(comment.username, 'comment-avatar');
+        // Phase-01 spec: "Edit comment (only owner)" / "Delete comment (owner or admin)"
+        const isOwner   = Auth.user && Auth.user.id === comment.userId;
+        const isAdmin   = Auth.user && Auth.user.role === 'Admin';
+        const canEdit   = isOwner;                 // owner only — NOT admin
+        const canDelete = isOwner || isAdmin;      // owner or admin
+        const edited    = comment.updatedAt
             ? `<span class="comment-edited">(đã sửa)</span>` : '';
 
         return `
@@ -169,14 +173,16 @@ const PostDetail = (() => {
                     ${edited}
                 </div>
                 <div class="comment-text">${Utils.escapeHtml(comment.content)}</div>
-                ${canEdit ? `
+                ${(canEdit || canDelete) ? `
                 <div class="comment-actions">
+                    ${canEdit ? `
                     <button class="comment-action-btn comment-btn-edit">
                         <i class="bi bi-pencil me-1"></i>Sửa
-                    </button>
+                    </button>` : ''}
+                    ${canDelete ? `
                     <button class="comment-action-btn danger comment-btn-delete">
                         <i class="bi bi-trash me-1"></i>Xóa
-                    </button>
+                    </button>` : ''}
                 </div>` : ''}
                 <div class="comment-edit-form d-none"></div>
             </div>

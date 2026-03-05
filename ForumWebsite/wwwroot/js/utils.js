@@ -98,7 +98,66 @@ const Utils = (() => {
         msgEl.addEventListener('closed.bs.alert', () => clearTimeout(tid), { once: true });
     }
 
-    return { timeAgo, strToColor, avatarHtml, escapeHtml, fmtNum, flash, slugify };
+    /**
+     * Shared pagination renderer — eliminates duplication across page scripts.
+     *
+     * @param {object} paged       - PagedResult<T> from the API { page, pageSize, totalCount, totalPages }
+     * @param {object} els         - DOM element IDs: { wrap, info, ul }
+     * @param {Function} onPage    - Callback invoked with the new page number when a link is clicked
+     * @param {string} itemLabel   - Display label e.g. "bài viết" or "chủ đề"
+     */
+    function renderPagination(paged, els, onPage, itemLabel) {
+        const wrap = document.getElementById(els.wrap);
+        const info = document.getElementById(els.info);
+        const ul   = document.getElementById(els.ul);
+        if (!wrap || !info || !ul) return;
+
+        if (!paged || paged.totalPages <= 1) {
+            wrap.classList.add('d-none');
+            return;
+        }
+
+        wrap.classList.remove('d-none');
+
+        const cur   = paged.page;
+        const total = paged.totalPages;
+        const start = (cur - 1) * paged.pageSize + 1;
+        const end   = Math.min(cur * paged.pageSize, paged.totalCount);
+        info.textContent = `Hiển thị ${start}–${end} / ${paged.totalCount} ${itemLabel || 'mục'}`;
+
+        const items = [];
+        items.push(`<li class="page-item ${cur === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${cur - 1}"><i class="bi bi-chevron-left"></i></a></li>`);
+
+        const range = new Set([1, total]);
+        for (let p = Math.max(2, cur - 2); p <= Math.min(total - 1, cur + 2); p++) range.add(p);
+        let prev = 0;
+        [...range].sort((a, b) => a - b).forEach(p => {
+            if (p - prev > 1)
+                items.push(`<li class="page-item disabled"><span class="page-link">&hellip;</span></li>`);
+            items.push(`<li class="page-item ${p === cur ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${p}">${p}</a></li>`);
+            prev = p;
+        });
+
+        items.push(`<li class="page-item ${cur === total ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${cur + 1}"><i class="bi bi-chevron-right"></i></a></li>`);
+
+        ul.innerHTML = items.join('');
+
+        ul.querySelectorAll('.page-link[data-page]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const p = parseInt(link.dataset.page, 10);
+                if (p >= 1 && p <= total && p !== cur) {
+                    onPage(p);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    return { timeAgo, strToColor, avatarHtml, escapeHtml, fmtNum, flash, slugify, renderPagination };
 })();
 
 /* ── Quill toolbar config ────────────────────────────────────────

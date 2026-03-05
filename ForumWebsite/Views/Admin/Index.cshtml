@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "Quản trị";
+}
+
+@section Scripts {
+    <script src="~/js/pages/admin.js" asp-append-version="true"></script>
+}
+
+<!-- Page header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-shield-lock me-2 text-primary"></i>Bảng quản trị</h4>
+</div>
+
+<!-- Bootstrap 5 tab nav -->
+<ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-categories" data-bs-toggle="tab"
+                data-bs-target="#pane-categories" type="button" role="tab">
+            <i class="bi bi-folder me-1"></i>Danh mục
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-tags" data-bs-toggle="tab"
+                data-bs-target="#pane-tags" type="button" role="tab">
+            <i class="bi bi-tags me-1"></i>Thẻ
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-posts" data-bs-toggle="tab"
+                data-bs-target="#pane-posts" type="button" role="tab">
+            <i class="bi bi-file-text me-1"></i>Bài viết
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-users" data-bs-toggle="tab"
+                data-bs-target="#pane-users" type="button" role="tab">
+            <i class="bi bi-people me-1"></i>Người dùng
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="adminTabContent">
+
+    <!-- ══════════ CATEGORIES ══════════ -->
+    <div class="tab-pane fade show active" id="pane-categories" role="tabpanel">
+        <div class="forum-card">
+            <div class="forum-card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold"><i class="bi bi-folder me-1"></i>Quản lý danh mục</span>
+                <button class="btn btn-primary btn-sm" id="btnAddCategory">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm danh mục
+                </button>
+            </div>
+            <div class="p-3">
+                <div id="catError" class="alert alert-danger py-2 small d-none"></div>
+                <div id="catTableWrap">
+                    <p class="text-muted small">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ TAGS ══════════ -->
+    <div class="tab-pane fade" id="pane-tags" role="tabpanel">
+        <div class="forum-card">
+            <div class="forum-card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold"><i class="bi bi-tags me-1"></i>Quản lý thẻ</span>
+                <button class="btn btn-primary btn-sm" id="btnAddTag">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm thẻ
+                </button>
+            </div>
+            <div class="p-3">
+                <div id="tagError" class="alert alert-danger py-2 small d-none"></div>
+                <div id="tagTableWrap">
+                    <p class="text-muted small">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ POSTS ══════════ -->
+    <div class="tab-pane fade" id="pane-posts" role="tabpanel">
+        <div class="forum-card">
+            <div class="forum-card-header">
+                <span class="fw-semibold"><i class="bi bi-file-text me-1"></i>Quản lý bài viết</span>
+            </div>
+            <div class="p-3">
+                <div id="postError" class="alert alert-danger py-2 small d-none"></div>
+                <div id="postTableWrap">
+                    <p class="text-muted small">Đang tải...</p>
+                </div>
+                <!-- Pagination -->
+                <div id="postPaginationWrapper" class="d-none mt-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <small id="postPaginationInfo" class="text-muted"></small>
+                        <nav><ul class="pagination pagination-sm mb-0" id="postPagination"></ul></nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ USERS ══════════ -->
+    <div class="tab-pane fade" id="pane-users" role="tabpanel">
+        <div class="forum-card">
+            <div class="forum-card-header">
+                <span class="fw-semibold"><i class="bi bi-people me-1"></i>Quản lý người dùng</span>
+            </div>
+            <div class="p-3">
+                <div id="userError" class="alert alert-danger py-2 small d-none"></div>
+                <div id="userTableWrap">
+                    <p class="text-muted small">Đang tải...</p>
+                </div>
+                <!-- Pagination -->
+                <div id="userPaginationWrapper" class="d-none mt-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <small id="userPaginationInfo" class="text-muted"></small>
+                        <nav><ul class="pagination pagination-sm mb-0" id="userPagination"></ul></nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════ CATEGORY MODAL ══════════════ -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content forum-modal">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="categoryModalTitle">Thêm danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="categoryModalError" class="alert alert-danger py-2 small d-none"></div>
+                <form id="categoryForm" novalidate>
+                    <input type="hidden" id="categoryId" value="0" />
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small">Tên danh mục <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="categoryName"
+                               placeholder="Tên danh mục (tối đa 100 ký tự)" maxlength="100" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small">Mô tả</label>
+                        <textarea class="form-control" id="categoryDescription" rows="2"
+                                  placeholder="Mô tả (tuỳ chọn, tối đa 500 ký tự)" maxlength="500"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small">Thứ tự hiển thị</label>
+                        <input type="number" class="form-control" id="categorySortOrder" value="0" min="0" />
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="categoryIsDefault" />
+                        <label class="form-check-label small" for="categoryIsDefault">Đặt làm mặc định</label>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-semibold" id="btnSaveCategory">
+                            <span id="catSaveSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ TAG MODAL ══════════════ -->
+<div class="modal fade" id="tagModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content forum-modal">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="tagModalTitle">Thêm thẻ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="tagModalError" class="alert alert-danger py-2 small d-none"></div>
+                <form id="tagForm" novalidate>
+                    <input type="hidden" id="tagId" value="0" />
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small">Tên thẻ <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="tagName"
+                               placeholder="Tên thẻ (tối đa 50 ký tự)" maxlength="50" required />
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-semibold" id="btnSaveTag">
+                            <span id="tagSaveSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

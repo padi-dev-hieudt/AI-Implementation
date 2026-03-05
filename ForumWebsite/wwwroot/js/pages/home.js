@@ -119,57 +119,13 @@ const Forum = (() => {
     }
 
     function _renderPagination(paged) {
-        const wrap = document.getElementById('paginationWrapper');
-        const info = document.getElementById('paginationInfo');
-        const ul   = document.getElementById('pagination');
-        if (!wrap || !info || !ul) return;
-
-        if (paged.totalPages <= 1) { wrap.classList.add('d-none'); return; }
-
-        wrap.classList.remove('d-none');
-
-        const start = (paged.page - 1) * paged.pageSize + 1;
-        const end   = Math.min(paged.page * paged.pageSize, paged.totalCount);
-        info.textContent = `Hiển thị ${start}–${end} / ${paged.totalCount} bài viết`;
-
-        const cur   = paged.page;
-        const total = paged.totalPages;
-        const items = [];
-
-        items.push(`<li class="page-item ${cur === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${cur - 1}">
-                <i class="bi bi-chevron-left"></i>
-            </a></li>`);
-
-        const range = new Set([1, total]);
-        for (let p = Math.max(2, cur - 2); p <= Math.min(total - 1, cur + 2); p++) range.add(p);
-        const sorted = [...range].sort((a, b) => a - b);
-        let prev = 0;
-        sorted.forEach(p => {
-            if (p - prev > 1)
-                items.push(`<li class="page-item disabled"><span class="page-link">&hellip;</span></li>`);
-            items.push(`<li class="page-item ${p === cur ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${p}">${p}</a></li>`);
-            prev = p;
-        });
-
-        items.push(`<li class="page-item ${cur === total ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${cur + 1}">
-                <i class="bi bi-chevron-right"></i>
-            </a></li>`);
-
-        ul.innerHTML = items.join('');
-
-        ul.querySelectorAll('.page-link[data-page]').forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                const p = parseInt(link.dataset.page, 10);
-                if (p >= 1 && p <= total && p !== cur) {
-                    _load(p);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            });
-        });
+        // Delegates to shared Utils.renderPagination — no duplication with user-profile.js
+        Utils.renderPagination(
+            paged,
+            { wrap: 'paginationWrapper', info: 'paginationInfo', ul: 'pagination' },
+            p => _load(p),
+            'bài viết'
+        );
     }
 
     function _updateStats(topics, replies, views) {

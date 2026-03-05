@@ -136,48 +136,13 @@ const UserProfile = (() => {
     }
 
     function _renderPagination(paged) {
-        const wrap = document.getElementById('profilePaginationWrapper');
-        const info = document.getElementById('profilePaginationInfo');
-        const ul   = document.getElementById('profilePagination');
-        if (!wrap || !info || !ul) return;
-
-        if (paged.totalPages <= 1) { wrap.classList.add('d-none'); return; }
-        wrap.classList.remove('d-none');
-
-        const cur   = paged.page;
-        const total = paged.totalPages;
-        const start = (cur - 1) * paged.pageSize + 1;
-        const end   = Math.min(cur * paged.pageSize, paged.totalCount);
-        info.textContent = `Hiển thị ${start}–${end} / ${paged.totalCount} bài viết`;
-
-        const items = [];
-        items.push(`<li class="page-item ${cur === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${cur - 1}"><i class="bi bi-chevron-left"></i></a></li>`);
-
-        const range = new Set([1, total]);
-        for (let p = Math.max(2, cur - 2); p <= Math.min(total - 1, cur + 2); p++) range.add(p);
-        [...range].sort((a, b) => a - b).reduce((prev, p) => {
-            if (p - prev > 1)
-                items.push(`<li class="page-item disabled"><span class="page-link">&hellip;</span></li>`);
-            items.push(`<li class="page-item ${p === cur ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${p}">${p}</a></li>`);
-            return p;
-        }, 0);
-
-        items.push(`<li class="page-item ${cur === total ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${cur + 1}"><i class="bi bi-chevron-right"></i></a></li>`);
-
-        ul.innerHTML = items.join('');
-        ul.querySelectorAll('.page-link[data-page]').forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                const p = parseInt(link.dataset.page, 10);
-                if (p >= 1 && p <= total && p !== cur) {
-                    _loadPosts(p);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            });
-        });
+        // Delegates to shared Utils.renderPagination — no duplication with home.js
+        Utils.renderPagination(
+            paged,
+            { wrap: 'profilePaginationWrapper', info: 'profilePaginationInfo', ul: 'profilePagination' },
+            p => _loadPosts(p),
+            'bài viết'
+        );
     }
 
     return { init };

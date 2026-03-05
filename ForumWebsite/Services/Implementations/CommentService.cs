@@ -64,7 +64,8 @@ namespace ForumWebsite.Services.Implementations
             if (comment == null || comment.IsDeleted)
                 throw new KeyNotFoundException($"Comment {commentId} not found.");
 
-            EnsureOwnerOrAdmin(comment.UserId, requestingUserId, requestingUserRole, "edit");
+            // Phase-01 spec: "Edit comment (only owner)" — admins may delete but NOT edit.
+            EnsureOwner(comment.UserId, requestingUserId, "edit");
 
             comment.Content   = dto.Content.Trim();
             comment.UpdatedAt = DateTime.UtcNow;
@@ -82,6 +83,7 @@ namespace ForumWebsite.Services.Implementations
             if (comment == null || comment.IsDeleted)
                 throw new KeyNotFoundException($"Comment {commentId} not found.");
 
+            // Phase-01 spec: "Delete comment (owner or admin)"
             EnsureOwnerOrAdmin(comment.UserId, requestingUserId, requestingUserRole, "delete");
 
             comment.IsDeleted = true;
@@ -91,6 +93,15 @@ namespace ForumWebsite.Services.Implementations
 
         // ── Private helpers ────────────────────────────────────────────────────
 
+        /// <summary>Edit: owner-only (spec: "Edit comment (only owner)").</summary>
+        private static void EnsureOwner(int ownerId, int requestingUserId, string action)
+        {
+            if (ownerId != requestingUserId)
+                throw new ForbiddenException(
+                    $"Only the comment owner can {action} this comment."); // → 403
+        }
+
+        /// <summary>Delete: owner or admin (spec: "Delete comment (owner or admin)").</summary>
         private static void EnsureOwnerOrAdmin(
             int ownerId, int requestingUserId, string requestingUserRole, string action)
         {

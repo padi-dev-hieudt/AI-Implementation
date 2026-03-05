@@ -11,7 +11,7 @@
     <script src="~/js/pages/create-post.js" asp-append-version="true"></script>
 }
 
-<!-- Guest prompt (shown by forum.js when not logged in) -->
+<!-- Guest prompt (shown when not logged in) -->
 <div id="createPostLoginPrompt" class="d-none">
     <div class="forum-card p-5 text-center">
         <i class="bi bi-lock fs-1 text-muted d-block mb-3"></i>
@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<!-- Create-post form (shown by forum.js when logged in) -->
+<!-- Create-post form (shown when logged in) -->
 <div id="createPostFormWrapper" class="d-none">
     <div class="forum-card">
         <div class="forum-card-header">
@@ -42,6 +42,25 @@
                     <input type="text" class="form-control" id="postTitle"
                            placeholder="Nhập tiêu đề bài viết (10 – 300 ký tự)" required />
                     <div class="form-text text-end" id="titleCharCount">0 / 300</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">
+                        Danh mục <span class="text-danger">*</span>
+                    </label>
+                    <!-- Populated by create-post.js from GET /api/category -->
+                    <select class="form-select" id="postCategory" required>
+                        <option value="0">Đang tải danh mục...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">
+                        Thẻ <span class="text-muted small fw-normal">(tuỳ chọn, tối đa 5)</span>
+                    </label>
+                    <!-- Populated by create-post.js from GET /api/tag -->
+                    <div id="tagPickerContainer" class="d-flex flex-wrap gap-2 p-2 border rounded">
+                        <span class="text-muted small">Đang tải thẻ...</span>
+                    </div>
+                    <div class="form-text">Chọn tối đa 5 thẻ liên quan đến bài viết.</div>
                 </div>
                 <div class="mb-4">
                     <label class="form-label fw-medium">

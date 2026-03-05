@@ -133,8 +133,10 @@ namespace ForumWebsite.Controllers
         }
 
         // PUT api/post/{id}/close  — Admin only; toggles IsClosed
+        // [Authorize(Roles)] enforces at the HTTP layer (403 before reaching service),
+        // providing defense-in-depth on top of the service-layer ClosePostAsync role check.
         [HttpPut("{id:int}/close")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ClosePost(int id)
         {
             var post = await _postService.ClosePostAsync(id, GetCurrentUserRole());

@@ -46,8 +46,10 @@ namespace ForumWebsite.Middleware
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
                 // Bootstrap Icons + Quill fonts are served from jsDelivr CDN.
                 "font-src 'self' https://cdn.jsdelivr.net; " +
-                // data: URIs needed for Quill clipboard-pasted images
-                "img-src 'self' data: blob:; " +
+                // data: removed — Ganss.Xss sanitizer strips pasted images server-side;
+                // the browser never receives data: image URIs. blob: retained for future
+                // file-preview (ObjectURL). Removing data: tightens the CSP attack surface.
+                "img-src 'self' blob:; " +
                 "connect-src 'self'; " +
                 "frame-ancestors 'none';";
 

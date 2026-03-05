@@ -65,6 +65,10 @@ const Auth = (() => {
 
             const ddProfileLink = document.getElementById('ddProfileLink');
             if (ddProfileLink && _user.id) ddProfileLink.href = `/profile/${_user.id}`;
+
+            // Show "Quản trị" link only for Admin users
+            const ddAdminLink = document.getElementById('ddAdminLink');
+            if (ddAdminLink) ddAdminLink.classList.toggle('d-none', _user.role !== 'Admin');
         } else {
             guestNav.classList.remove('d-none');
             userNav.classList.add('d-none');

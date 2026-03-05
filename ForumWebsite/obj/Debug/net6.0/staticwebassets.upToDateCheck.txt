@@ -1,12 +1,11 @@
 wwwroot\css\site.css
 wwwroot\favicon.ico
 wwwroot\js\auth.js
-wwwroot\js\forum.js
+wwwroot\js\pages\admin.js
 wwwroot\js\pages\create-post.js
 wwwroot\js\pages\home.js
 wwwroot\js\pages\post-detail.js
 wwwroot\js\pages\user-profile.js
-wwwroot\js\site.js
 wwwroot\js\utils.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map

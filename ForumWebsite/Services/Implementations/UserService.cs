@@ -105,6 +105,41 @@ namespace ForumWebsite.Services.Implementations
             };
         }
 
+        public async Task<PagedResult<AdminUserDto>> GetAllUsersAsync(int page, int pageSize)
+        {
+            var (users, total) = await _userRepository.GetAllPagedAsync(page, pageSize);
+
+            return new PagedResult<AdminUserDto>
+            {
+                Items      = users.Select(u => new AdminUserDto
+                {
+                    Id        = u.Id,
+                    Username  = u.Username,
+                    Email     = u.Email,
+                    Role      = u.Role,
+                    IsActive  = u.IsActive,
+                    CreatedAt = u.CreatedAt
+                }),
+                Page       = page,
+                PageSize   = pageSize,
+                TotalCount = total
+            };
+        }
+
+        public async Task ToggleUserActiveAsync(int targetUserId, int requestingUserId)
+        {
+            if (targetUserId == requestingUserId)
+                throw new BusinessRuleException("Bạn không thể vô hiệu hoá tài khoản của chính mình.");
+
+            var user = await _userRepository.GetByIdAsync(targetUserId)
+                ?? throw new KeyNotFoundException($"User {targetUserId} not found.");
+
+            user.IsActive  = !user.IsActive;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+        }
+
         // ── Private helpers ────────────────────────────────────────────────────
 
         private AuthResponseDto BuildAuthResponse(User user)

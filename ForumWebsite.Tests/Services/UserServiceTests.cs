@@ -279,4 +279,74 @@ public class UserServiceTests
             .Should().ThrowAsync<KeyNotFoundException>()
             .WithMessage("*999*");
     }
+
+    // ── GetAllUsersAsync ──────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task GetAllUsersAsync_ReturnsPagedAdminUserDtos()
+    {
+        var users = new List<User>
+        {
+            TestDataFactory.CreateUser(id: 1),
+            TestDataFactory.CreateUser(id: 2)
+        };
+
+        _repoMock.Setup(r => r.GetAllPagedAsync(1, 20))
+                 .ReturnsAsync(((IEnumerable<User>)users, 2));
+
+        var result = await CreateSut().GetAllUsersAsync(1, 20);
+
+        result.TotalCount.Should().Be(2);
+        result.Page      .Should().Be(1);
+        result.PageSize  .Should().Be(20);
+        result.Items     .Should().HaveCount(2);
+    }
+
+    // ── ToggleUserActiveAsync ─────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ToggleUserActiveAsync_ActiveUser_DeactivatesUser()
+    {
+        var user = TestDataFactory.CreateUser(id: 5, isActive: true);
+
+        _repoMock.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(user);
+        _repoMock.Setup(r => r.UpdateAsync(user)).ReturnsAsync(user);
+
+        await CreateSut().ToggleUserActiveAsync(targetUserId: 5, requestingUserId: 1);
+
+        user.IsActive.Should().BeFalse();
+        _repoMock.Verify(r => r.UpdateAsync(user), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleUserActiveAsync_InactiveUser_ReactivatesUser()
+    {
+        var user = TestDataFactory.CreateUser(id: 6, isActive: false);
+
+        _repoMock.Setup(r => r.GetByIdAsync(6)).ReturnsAsync(user);
+        _repoMock.Setup(r => r.UpdateAsync(user)).ReturnsAsync(user);
+
+        await CreateSut().ToggleUserActiveAsync(targetUserId: 6, requestingUserId: 1);
+
+        user.IsActive.Should().BeTrue();
+        _repoMock.Verify(r => r.UpdateAsync(user), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleUserActiveAsync_SelfDeactivation_ThrowsBusinessRuleException()
+    {
+        // Admin cannot deactivate their own account
+        await CreateSut().Invoking(s => s.ToggleUserActiveAsync(targetUserId: 1, requestingUserId: 1))
+            .Should().ThrowAsync<BusinessRuleException>();
+    }
+
+    [Fact]
+    public async Task ToggleUserActiveAsync_UnknownTargetUser_ThrowsKeyNotFoundException()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((User?)null);
+
+        await CreateSut().Invoking(s => s.ToggleUserActiveAsync(targetUserId: 999, requestingUserId: 1))
+            .Should().ThrowAsync<KeyNotFoundException>()
+            .WithMessage("*999*");
+    }
 }

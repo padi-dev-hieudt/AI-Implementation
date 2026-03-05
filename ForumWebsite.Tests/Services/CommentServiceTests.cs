@@ -147,23 +147,22 @@ public class CommentServiceTests
     }
 
     [Fact]
-    public async Task UpdateCommentAsync_Admin_UpdatesOtherUsersComment()
+    public async Task UpdateCommentAsync_Admin_ThrowsForbiddenException_SpecOwnerOnly()
     {
+        // Phase-01 spec: "Edit comment (only owner)" — admins may delete but NOT edit.
         var owner   = TestDataFactory.CreateUser(id: 1);
         var post    = TestDataFactory.CreatePost(user: owner);
         var comment = TestDataFactory.CreateComment(id: 60, post: post, user: owner);
-        var updated = TestDataFactory.CreateComment(id: 60, post: post, user: owner);
 
-        _commentRepoMock.Setup(r => r.GetByIdAsync(60))                       .ReturnsAsync(comment);
-        _commentRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Comment>()))       .ReturnsAsync((Comment c) => c);
-        _commentRepoMock.Setup(r => r.GetByIdWithDetailsAsync(60))            .ReturnsAsync(updated);
+        _commentRepoMock.Setup(r => r.GetByIdAsync(60)).ReturnsAsync(comment);
 
-        var dto = new UpdateCommentDto { Content = "Admin override" };
-        // Admin user (id: 99) updating comment owned by user 1
-        var result = await CreateSut().UpdateCommentAsync(
-            commentId: 60, requestingUserId: 99, requestingUserRole: UserRoles.Admin, dto: dto);
-
-        result.Should().NotBeNull();
+        var dto = new UpdateCommentDto { Content = "Admin attempt" };
+        // Admin user (id: 99) cannot edit a comment they don't own
+        await CreateSut().Invoking(s =>
+                s.UpdateCommentAsync(60, requestingUserId: 99,
+                    requestingUserRole: UserRoles.Admin, dto: dto))
+            .Should().ThrowAsync<ForbiddenException>()
+            .WithMessage("*owner*");
     }
 
     [Fact]
@@ -180,7 +179,7 @@ public class CommentServiceTests
                 s.UpdateCommentAsync(70, requestingUserId: 55,
                     requestingUserRole: UserRoles.User, dto: dto))
             .Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("*permission*");
+            .WithMessage("*owner*");
     }
 
     [Fact]

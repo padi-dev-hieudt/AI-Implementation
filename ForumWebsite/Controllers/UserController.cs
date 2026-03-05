@@ -101,6 +101,29 @@ namespace ForumWebsite.Controllers
             return OkResponse(publicProfile);
         }
 
+        // GET api/user/admin/users?page=1&pageSize=20
+        // Returns all users (paged) for the admin management panel.
+        [HttpGet("admin/users")]
+        [Authorize(Roles = UserRoles.Admin)]
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            page     = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
+            var result = await _userService.GetAllUsersAsync(page, pageSize);
+            return OkResponse(result);
+        }
+
+        // PUT api/user/admin/{id}/toggle-active
+        // Toggles IsActive on the target user (ban / unban). Cannot self-deactivate.
+        [HttpPut("admin/{id:int}/toggle-active")]
+        [Authorize(Roles = UserRoles.Admin)]
+        public async Task<IActionResult> ToggleUserActive(int id)
+        {
+            await _userService.ToggleUserActiveAsync(id, GetCurrentUserId());
+            return OkResponse<object>(null!, "Trạng thái tài khoản đã được cập nhật.");
+        }
+
         // ── Private helpers ────────────────────────────────────────────────────
 
         private void SetJwtCookie(string token, DateTime expiresAt)

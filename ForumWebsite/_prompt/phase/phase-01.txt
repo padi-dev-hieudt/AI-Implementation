@@ -192,3 +192,50 @@ Generate the solution step-by-step in logical order:
 
 Do NOT skip explanations.
 Keep code structured and production-ready.
+
+=====================================
+FEATURE 6 — ADMIN DASHBOARD (added)
+=====================================
+
+Route: GET /admin  (requires Admin role — enforced both server [Authorize] and client-side redirect)
+
+Bootstrap 5 tabbed single-page admin panel with four lazy-loaded tabs:
+
+6a) Category Management
+- Tab: Danh mục — lists all categories with Id, Name, Description, IsDefault, SortOrder, PostCount
+- Create: POST /api/category { name, description, sortOrder, isDefault }
+- Update: PUT  /api/category/{id}
+- Delete: DELETE /api/category/{id}
+  - Delete button disabled if IsDefault=true OR PostCount > 0 (FK Restrict prevents accidental orphan)
+
+6b) Tag Management
+- Tab: Thẻ — lists all tags with Id, Name, PostCount
+- Create: POST /api/tag { name }
+- Update: PUT  /api/tag/{id}
+- Delete: DELETE /api/tag/{id} (cascades PostTags automatically)
+
+6c) Post Moderation
+- Tab: Bài viết — lists all posts paginated (20/page) with Id, Title, Author, Category, Status
+- Close/Reopen: PUT /api/post/{id}/close  (toggles IsClosed)
+- Delete: DELETE /api/post/{id}
+- Pagination via Utils.renderPagination()
+
+6d) User Management
+- Tab: Người dùng — lists all users paginated (20/page) with Id, Username, Email, Role, IsActive
+- Toggle Active: PUT /api/user/admin/{id}/toggle-active  (ban / unban)
+  - Throws BusinessRuleException if admin targets their own account
+- Pagination via Utils.renderPagination()
+
+New API endpoints added:
+  GET /api/user/admin/users?page=N&pageSize=N   — admin only, returns PagedResult<AdminUserDto>
+  PUT /api/user/admin/{id}/toggle-active         — admin only, returns 200 with no data body
+
+New DTO:
+  AdminUserDto — { Id, Username, Email, Role, IsActive, CreatedAt } — manual projection (no AutoMapper)
+
+New MVC controller:
+  AdminController (GET /admin) — class-level [Authorize(Roles=Admin)], returns View()
+
+Navigation:
+  ddAdminLink <li> in _Layout.cshtml dropdown — hidden (d-none) by default,
+  revealed by auth.js _updateNav() when user.role === 'Admin'

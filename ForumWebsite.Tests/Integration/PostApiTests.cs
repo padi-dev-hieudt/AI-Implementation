@@ -16,7 +16,8 @@ namespace ForumWebsite.Tests.Integration;
 /// The <see cref="ForumWebApplicationFactory"/> is shared across all tests in the
 /// class via <see cref="IClassFixture{TFixture}"/>.
 /// </summary>
-public class PostApiTests : IClassFixture<ForumWebApplicationFactory>
+[Collection(IntegrationTestCollection.Name)]
+public class PostApiTests
 {
     private readonly ForumWebApplicationFactory _factory;
 
